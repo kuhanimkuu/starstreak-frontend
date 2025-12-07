@@ -20,7 +20,7 @@ export default function Products() {
       icon: <Smartphone className="w-12 h-12" />,
       status: "Live Now",
       statusColor: "bg-green-500",
-      link: "https://nexora.app",
+      link: "https://nexora.starstreak.org",
     },
     {
       name: "Trustia",
