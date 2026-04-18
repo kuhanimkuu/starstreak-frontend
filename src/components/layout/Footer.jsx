@@ -1,36 +1,72 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Twitter, Github, Linkedin, Mail, Heart } from 'lucide-react';
+import { supabase } from '../../lib/supabase/client';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const [socialUrls, setSocialUrls] = useState({ twitter: '', github: '', linkedin: '' });
+  const [announcement, setAnnouncement] = useState({ text: '', active: false });
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const { data } = await supabase
+          .from('site_settings')
+          .select('key, value')
+          .in('key', ['social_twitter', 'social_github', 'social_linkedin', 'announcement_text', 'announcement_active']);
+        const map = {};
+        (data ?? []).forEach(row => { map[row.key] = row.value; });
+        setSocialUrls({
+          twitter: map.social_twitter || '',
+          github: map.social_github || '',
+          linkedin: map.social_linkedin || '',
+        });
+        setAnnouncement({
+          text: map.announcement_text || '',
+          active: map.announcement_active === 'true',
+        });
+      } catch {
+        // silently fall back to no social links
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const footerLinks = {
     products: [
       { label: 'Nexora', to: '/products' },
       { label: 'Trustia', to: '/products' },
-      { label: 'Roadmap', to: '/' },
+      { label: 'All Products', to: '/products' },
     ],
     company: [
       { label: 'About Us', to: '/about' },
-      { label: 'Careers', to: '/' },
+      { label: 'Team', to: '/team' },
+      { label: 'Blog', to: '/blog' },
+      { label: 'Careers', to: '/careers' },
       { label: 'Contact', to: '/contact' },
     ],
     legal: [
       { label: 'Privacy Policy', to: '/privacy' },
       { label: 'Terms of Service', to: '/terms' },
-      { label: 'Cookies', to: '/' },
+      { label: 'Cookie Policy', to: '/cookie-policy' },
     ],
   };
 
   const socialLinks = [
-    { icon: <Twitter className="w-5 h-5" />, url: '#', label: 'Twitter' },
-    { icon: <Github className="w-5 h-5" />, url: '#', label: 'GitHub' },
-    { icon: <Linkedin className="w-5 h-5" />, url: '#', label: 'LinkedIn' },
+    { icon: <Twitter className="w-5 h-5" />, url: socialUrls.twitter || '#', label: 'Twitter' },
+    { icon: <Github className="w-5 h-5" />, url: socialUrls.github || '#', label: 'GitHub' },
+    { icon: <Linkedin className="w-5 h-5" />, url: socialUrls.linkedin || '#', label: 'LinkedIn' },
     { icon: <Mail className="w-5 h-5" />, url: '/contact', label: 'Email' },
   ];
 
   return (
+    <>
+      {announcement.active && announcement.text && (
+        <div className="bg-linear-to-r from-emerald-600 to-teal-600 text-white text-center text-sm py-2 px-4 font-medium">
+          {announcement.text}
+        </div>
+      )}
     <footer className="bg-gradient-to-b from-slate-950 to-black border-t border-emerald-500/10">
       <div className="container-custom py-16">
         {/* Top Section */}
@@ -118,14 +154,23 @@ export default function Footer() {
 
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-500 text-sm">
-            © {currentYear} Starstreak. All rights reserved.
-          </p>
+          <div className="flex items-center gap-4">
+            <p className="text-gray-500 text-sm">
+              © {currentYear} Starstreak. All rights reserved.
+            </p>
+            <Link
+              to="/admin/login"
+              className="text-gray-600 hover:text-emerald-400 text-xs transition-colors"
+            >
+              Admin
+            </Link>
+          </div>
           <p className="text-gray-500 text-sm flex items-center gap-2">
             Made with <Heart className="w-4 h-4 text-emerald-500 fill-current animate-pulse" /> for innovators worldwide
           </p>
         </div>
       </div>
     </footer>
+    </>
   );
 }

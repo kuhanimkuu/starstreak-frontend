@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Starstreak Admin User</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+    }
+    h1 {
+      color: #10b981;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    p {
+      color: #666;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #10b981;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .message {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+    }
+    .message.success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #10b981;
+    }
+    .message.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #ef4444;
+    }
+    .message.show {
+      display: block;
+    }
+    .note {
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #92400e;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔐 Create Admin User</h1>
+    <p>Create a super admin account for the Starstreak admin panel.</p>
+
+    <form id="adminForm">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" required placeholder="admin@starstreak.com">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" required placeholder="Minimum 6 characters">
+      </div>
+
+      <div class="form-group">
+        <label for="displayName">Display Name</label>
+        <input type="text" id="displayName" required placeholder="Admin">
+      </div>
+
+      <div class="form-group">
+        <label for="role">Role</label>
+        <select id="role" required>
+          <option value="super_admin">Super Admin (Full Access)</option>
+          <option value="team_member">Team Member (Limited Access)</option>
+        </select>
+      </div>
+
+      <button type="submit" id="submitBtn">Create Admin User</button>
+    </form>
+
+    <div id="message" class="message"></div>
+
+    <div class="note">
+      <strong>⚠️ Note:</strong> This will create a new user in your Firebase project. Make sure you're connected to the internet and Firebase is properly configured.
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCEXOB6AuXzaLtqfjFudh4Luhf1IJ1PDEY",
+      authDomain: "starstreak-3ec7b.firebaseapp.com",
+      projectId: "starstreak-3ec7b",
+      storageBucket: "starstreak-3ec7b.firebasestorage.app",
+      messagingSenderId: "896590579222",
+      appId: "1:896590579222:web:175647a7d44cbded83d737",
+      measurementId: "G-N2V3HPYFGS"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const form = document.getElementById('adminForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const messageEl = document.getElementById('message');
+
+    function showMessage(text, type) {
+      messageEl.textContent = text;
+      messageEl.className = `message ${type} show`;
+      setTimeout(() => {
+        messageEl.classList.remove('show');
+      }, 5000);
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const displayName = document.getElementById('displayName').value;
+      const role = document.getElementById('role').value;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating...';
+
+      try {
+        // Create user in Firebase Authentication
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Create user document in Firestore
+        await setDoc(doc(db, 'users', user.uid), {
+          uid: user.uid,
+          email: email,
+          displayName: displayName,
+          role: role,
+          active: true,
+          createdAt: new Date().toISOString()
+        });
+
+        showMessage(`✅ Success! Admin user created: ${email}`, 'success');
+        form.reset();
+
+        setTimeout(() => {
+          window.location.href = 'http://localhost:5176/admin/login';
+        }, 2000);
+
+      } catch (error) {
+        console.error('Error:', error);
+        let errorMessage = 'Failed to create admin user.';
+
+        if (error.code === 'auth/email-already-in-use') {
+          errorMessage = 'This email is already registered.';
+        } else if (error.code === 'auth/weak-password') {
+          errorMessage = 'Password should be at least 6 characters.';
+        } else if (error.code === 'auth/invalid-email') {
+          errorMessage = 'Invalid email address.';
+        }
+
+        showMessage(`❌ ${errorMessage}`, 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create Admin User';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -36,10 +36,10 @@ export default function Values() {
   ];
 
   return (
-    <section className="section-padding bg-[#0f1522]">
+    <section className="py-20 bg-gray-100 dark:bg-[#0f1522]">
       <div className="container-custom">
 
-        <h2 className="text-4xl font-extrabold text-center mb-12">
+        <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white text-center mb-12">
           Our Core Values
         </h2>
 
@@ -49,14 +49,14 @@ export default function Values() {
             return (
               <div
                 key={i}
-                className="p-8 border border-white/10 rounded-xl hover:-translate-y-2 transition"
+                className="p-8 border border-gray-300 dark:border-white/10 rounded-xl hover:-translate-y-2 transition bg-white dark:bg-transparent"
               >
                 <div className="w-16 h-16 flex items-center justify-center rounded-xl bg-linear-to-br from-emerald-600 to-teal-600 mb-6 mx-auto shadow-lg shadow-emerald-500/30">
                   <Icon size={32} className="text-white" />
                 </div>
 
-                <h3 className="text-2xl font-bold mb-4 text-center">{v.title}</h3>
-                <p className="text-gray-400 text-center leading-relaxed">{v.desc}</p>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">{v.title}</h3>
+                <p className="text-gray-700 dark:text-gray-400 text-center leading-relaxed">{v.desc}</p>
               </div>
             );
           })}

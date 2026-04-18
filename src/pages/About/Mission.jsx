@@ -3,7 +3,7 @@ import { Target } from "lucide-react";
 
 export default function Mission() {
   return (
-    <section className="section-padding bg-[#0d111a]">
+    <section className="py-20 bg-gray-100 dark:bg-[#0d111a]">
       <div className="container-custom grid md:grid-cols-2 gap-12 items-center">
 
         {/* Icon */}
@@ -15,9 +15,9 @@ export default function Mission() {
 
         {/* Text */}
         <div>
-          <h2 className="text-4xl font-extrabold mb-4">Our Mission</h2>
+          <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-4">Our Mission</h2>
 
-          <p className="text-gray-400 text-lg leading-relaxed">
+          <p className="text-gray-700 dark:text-gray-400 text-lg leading-relaxed">
             Our mission is to build technology that places African youth,
             creators, and communities at the center of innovation. We want to
             create digital products that feel modern, meaningful, and culturally
@@ -26,8 +26,8 @@ export default function Mission() {
             afterthought.
           </p>
 
-          <p className="text-gray-400 text-lg leading-relaxed mt-4">
-            At Starstreak, we believe that Africa’s digital transformation will
+          <p className="text-gray-700 dark:text-gray-400 text-lg leading-relaxed mt-4">
+            At Starstreak, we believe that Africa's digital transformation will
             not be driven by imitation, but by originality. Our work is focused
             on designing technology that understands the realities of African
             life: fast-growing communities, youth-driven creativity, vibrant
@@ -35,18 +35,18 @@ export default function Mission() {
             globally competitive.
           </p>
 
-          <p className="text-gray-400 text-lg leading-relaxed mt-4">
-            Through platforms like <span className="text-white font-medium">Nexora</span> and
-            <span className="text-white font-medium"> Trustia</span>, we are building an
-            interconnected ecosystem engineered for speed, privacy, and seamless 
+          <p className="text-gray-700 dark:text-gray-400 text-lg leading-relaxed mt-4">
+            Through platforms like <span className="text-gray-900 dark:text-white font-medium">Nexora</span> and
+            <span className="text-gray-900 dark:text-white font-medium"> Trustia</span>, we are building an
+            interconnected ecosystem engineered for speed, privacy, and seamless
             cross-platform flow. Our products are intentionally designed to scale,
             evolve, and grow with the people who use them — empowering millions to
             express themselves, learn, transact, and participate in a digital
             economy built with them in mind.
           </p>
 
-          <p className="text-gray-400 text-lg leading-relaxed mt-4">
-            Starstreak’s mission is not just to build software, but to redefine
+          <p className="text-gray-700 dark:text-gray-400 text-lg leading-relaxed mt-4">
+            Starstreak's mission is not just to build software, but to redefine
             what African consumer technology can look and feel like. We aim to set
             a new standard: proudly African, fearlessly innovative, and globally
             ready. Every product, feature, and idea we create pushes us closer to
