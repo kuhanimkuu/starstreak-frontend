@@ -32,7 +32,7 @@ export default function Header() {
     setTheme(resolvedTheme === "dark" ? "light" : "dark");
   };
 
-  const logoSrc = "/starstreak_logo.png";
+  const logoSrc = "/Starstreak_logo1.png";
 
   const themeIcon =
     resolvedTheme === "dark" ? (
@@ -54,14 +54,14 @@ export default function Header() {
       `}
     >
       <div className="container-custom">
-        <div className="flex items-center justify-between gap-4 py-3 md:py-4">
+        <div className="flex items-center justify-between h-20 lg:h-24">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group flex-shrink-0">
-            <img
+          <Link to="/" className="flex items-center gap-3 group shrink-0">
+          <img
               src={logoSrc}
               alt="Starstreak Logo"
-              className="h-10 md:h-12 lg:h-14 object-contain group-hover:scale-105 transition-all duration-500 filter drop-shadow-lg"
+              className="h-28 md:h-40 lg:h-40 object-contain group-hover:scale-105 transition-all duration-500 filter drop-shadow-lg"
             />
           </Link>
 
@@ -85,7 +85,7 @@ export default function Header() {
                   {link.label}
                   <span
                     className={`
-                      absolute -bottom-0.5 left-0 h-[2px] rounded-full
+                      absolute -bottom-0.5 left-0 h-0.5 rounded-full
                       bg-linear-to-r from-emerald-400 to-teal-400
                       transition-all duration-500
                       ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}
