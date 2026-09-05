@@ -61,7 +61,7 @@ export default function Header() {
           <img
               src={logoSrc}
               alt="Starstreak Logo"
-              className="h-28 md:h-40 lg:h-40 object-contain group-hover:scale-105 transition-all duration-500 filter drop-shadow-lg"
+              className="h-35 md:h-60 lg:h-40 object-contain group-hover:scale-105 transition-all duration-500 filter drop-shadow-lg"
             />
           </Link>
 
