@@ -28,7 +28,7 @@ const FLAGSHIP_PRODUCTS = [
       'Cross-platform sync across all devices',
       'Seamless integration with the Starstreak ecosystem',
     ],
-    website_url: '#',
+    website_url: 'https://nexora.starstreak.org',
     logo_letter: 'N',
     stats: '50K+ Active Users',
   },
