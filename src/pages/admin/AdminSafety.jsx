@@ -16,7 +16,7 @@ export default function AdminSafety() {
 
   async function loadSuspendedUsers() {
     setLoading(true);
-    const { data } = await supabase.from("users")
+    const { data } = await supabase.from("users_admin")
       .select("id, firebase_uid, display_name, username, avatar_url, suspended_at, suspension_reason")
       .eq("is_suspended", true).order("suspended_at", { ascending: false });
     setUsers(data || []);

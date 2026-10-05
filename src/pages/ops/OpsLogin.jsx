@@ -37,10 +37,9 @@ export default function OpsLogin() {
     }
 
     const { data: user } = await supabase
-      .from("users")
+      .from("me")
       .select("is_admin")
-      .eq("email", data.user.email)
-      .single();
+      .maybeSingle();
 
     if (!user?.is_admin) {
       await supabase.auth.signOut();

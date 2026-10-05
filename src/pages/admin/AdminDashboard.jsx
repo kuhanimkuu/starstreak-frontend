@@ -26,14 +26,14 @@ export default function AdminDashboard() {
       { data: users },
       { data: reports },
     ] = await Promise.all([
-      supabase.from("users").select("*", { count: "exact", head: true }).neq("is_deleted", true),
+      supabase.from("users_admin").select("*", { count: "exact", head: true }).neq("is_deleted", true),
       supabase.from("posts").select("*", { count: "exact", head: true }).neq("is_deleted", true),
       supabase.from("communities").select("*", { count: "exact", head: true }).neq("is_archived", true),
       supabase.from("flash_communities").select("*", { count: "exact", head: true }).neq("is_archived", true),
       supabase.from("content_reports").select("*", { count: "exact", head: true }).eq("status", "pending"),
-      supabase.from("users").select("*", { count: "exact", head: true }).eq("is_suspended", true).neq("is_deleted", true),
+      supabase.from("users_admin").select("*", { count: "exact", head: true }).eq("is_suspended", true).neq("is_deleted", true),
       supabase.from("support_messages").select("*", { count: "exact", head: true }).eq("status", "new"),
-      supabase.from("users").select("id, display_name, username, avatar_url, created_at").neq("is_deleted", true).order("created_at", { ascending: false }).limit(5),
+      supabase.from("users_admin").select("id, display_name, username, avatar_url, created_at").neq("is_deleted", true).order("created_at", { ascending: false }).limit(5),
       supabase.from("content_reports").select("id, content_type, reason, status, created_at").order("created_at", { ascending: false }).limit(5),
     ]);
 

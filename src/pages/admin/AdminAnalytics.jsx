@@ -17,12 +17,12 @@ export default function AdminAnalytics() {
       { count: totalCommunities }, { count: activeLast30Days },
       { data: topCommunities }, { data: topPosts },
     ] = await Promise.all([
-      supabase.from("users").select("*", { count: "exact", head: true }).neq("is_deleted", true),
-      supabase.from("users").select("*", { count: "exact", head: true }).neq("is_deleted", true).gte("created_at", sevenDaysAgo),
+      supabase.from("users_admin").select("*", { count: "exact", head: true }).neq("is_deleted", true),
+      supabase.from("users_admin").select("*", { count: "exact", head: true }).neq("is_deleted", true).gte("created_at", sevenDaysAgo),
       supabase.from("posts").select("*", { count: "exact", head: true }).neq("is_deleted", true),
       supabase.from("posts").select("*", { count: "exact", head: true }).neq("is_deleted", true).gte("created_at", sevenDaysAgo),
       supabase.from("communities").select("*", { count: "exact", head: true }).neq("is_archived", true),
-      supabase.from("users").select("*", { count: "exact", head: true }).neq("is_deleted", true).gte("last_active", thirtyDaysAgo),
+      supabase.from("users_admin").select("*", { count: "exact", head: true }).neq("is_deleted", true).gte("last_active", thirtyDaysAgo),
       supabase.from("communities").select("id, name, member_count, type").order("member_count", { ascending: false }).limit(10),
       supabase.from("posts").select("id, content, view_count, created_at").order("view_count", { ascending: false }).limit(10),
     ]);

@@ -55,7 +55,7 @@ export default function AdminUsers() {
 
   async function loadUsers() {
     setLoading(true);
-    let q = supabase.from("users").select(COLS, { count: "exact" }).neq("is_deleted", true);
+    let q = supabase.from("users_admin").select(COLS, { count: "exact" }).neq("is_deleted", true);
 
     if (filter === "suspended") {
       q = q.eq("is_suspended", true);
@@ -83,7 +83,7 @@ export default function AdminUsers() {
   async function searchUsers(term) {
     if (!term.trim()) { loadUsers(); return; }
     setLoading(true);
-    const { data } = await supabase.from("users")
+    const { data } = await supabase.from("users_admin")
       .select(COLS)
       .or(`username.ilike.%${term}%,display_name.ilike.%${term}%,email.ilike.%${term}%`)
       .neq("is_deleted", true)

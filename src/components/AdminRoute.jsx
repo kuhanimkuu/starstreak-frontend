@@ -25,10 +25,9 @@ export default function AdminRoute({ children }) {
 
     // Check is_admin flag in DB
     supabase
-      .from("users")
+      .from("me")
       .select("is_admin")
-      .eq("email", user.email)
-      .single()
+      .maybeSingle()
       .then(({ data }) => setAllowed(data?.is_admin === true))
       .catch(() => setAllowed(false));
   }, [user, authLoading]);
