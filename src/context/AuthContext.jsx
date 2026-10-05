@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
 const AuthContext = createContext(null);
@@ -7,6 +8,7 @@ export function AuthProvider({ children }) {
   const [user, setUser]         = useState(null);
   const [profile, setProfile]   = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const navigate = useNavigate();
 
   async function loadProfile(uid) {
     let { data } = await supabase.rpc("get_website_profile", { p_firebase_uid: uid });
@@ -30,6 +32,11 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     // onAuthStateChange fires immediately with INITIAL_SESSION — no getSession() needed
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      // Reset emails sent without a redirect (e.g. from the app) land on the Site URL —
+      // send them to the new-password form wherever they arrive.
+      if (event === "PASSWORD_RECOVERY" && !window.location.pathname.endsWith("reset-password")) {
+        navigate("/reset-password", { replace: true });
+      }
       setUser(session?.user || null);
       // Auth state is known immediately — don't wait for profile to unblock the app
       setAuthLoading(false);
@@ -41,7 +48,7 @@ export function AuthProvider({ children }) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
 
   async function refreshProfile() {
     if (!user) return;
