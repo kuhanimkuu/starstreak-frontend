@@ -3,24 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="google-site-verification" content="RWQVzx9vUmEaKjS9owDutDD6CWc9tNrtX_rwG8azB5o" />
-    <link rel="icon" href="/starstreak_logo.png" />
+    <link rel="icon" type="image/png" href="/starstreak_icon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Starstreak - The Hub of Next-Gen Digital Innovation</title>
 
-    <!-- Initialize theme before page loads to prevent flash -->
-    <script>
-      (function() {
-        const theme = localStorage.getItem('theme') || 'light';
-        document.documentElement.classList.remove('light', 'dark');
-        document.documentElement.classList.add(theme);
-        document.documentElement.setAttribute('data-theme', theme);
-        if (!localStorage.getItem('theme')) {
-          localStorage.setItem('theme', 'light');
-        }
-      })();
-    </script>
+    <!-- Primary meta -->
+    <title>Starstreak - The Social App for University Students</title>
+    <meta name="description" content="Starstreak is the campus social app built for university students. Posts, communities, flash groups, anonymous mode, and direct messages — all in one place." />
+    <meta name="keywords" content="university social app, campus community, student network, college social media, campus chat, starstreak" />
+    <meta name="author" content="Starstreak" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://starstreak.org/" />
+    <meta property="og:title" content="Starstreak - The Social App for University Students" />
+    <meta property="og:description" content="Connect with your campus. Posts, communities, flash groups, and DMs built for university life." />
+    <meta property="og:image" content="https://starstreak.org/starstreak_icon.png" />
+
+    <!-- Twitter card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Starstreak - The Social App for University Students" />
+    <meta name="twitter:description" content="Connect with your campus. Posts, communities, flash groups, and DMs built for university life." />
+    <meta name="twitter:image" content="https://starstreak.org/starstreak_icon.png" />
   </head>
-
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>

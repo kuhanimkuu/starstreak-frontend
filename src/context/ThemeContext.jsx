@@ -1,34 +1,33 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useState, useEffect } from 'react';
 
-export const ThemeContext = createContext();
+const ThemeContext = createContext();
 
-export function ThemeProvider({ children }) {
-  // DEFAULT TO LIGHT - Force light theme on first load
+export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem("theme");
-    // Force light theme as default if nothing saved
-    if (!savedTheme) {
-      localStorage.setItem("theme", "light");
-      return "light";
-    }
-    return savedTheme;
+    const saved = localStorage.getItem('nexora-theme');
+    return saved || 'light';
   });
 
-  // resolvedTheme is always the selected theme
-  const resolvedTheme = theme;
-
-  // Apply theme instantly to <html>
   useEffect(() => {
-    document.documentElement.classList.remove("light", "dark");
-    document.documentElement.classList.add(theme);
-    document.documentElement.setAttribute("data-theme", theme);
-
-    localStorage.setItem("theme", theme);
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('nexora-theme', theme);
   }, [theme]);
 
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
   return (
-    <ThemeContext.Provider value={{ resolvedTheme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
-}
+};
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within ThemeProvider');
+  }
+  return context;
+};

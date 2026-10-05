@@ -2,42 +2,22 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://starstreak.org/</loc>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://starstreak.org/about</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://starstreak.org/products</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://starstreak.org/blog</loc>
+    <loc>https://starstreak.org/login</loc>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://starstreak.org/careers</loc>
-    <priority>0.6</priority>
+    <loc>https://starstreak.org/signup</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://starstreak.org/team</loc>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://starstreak.org/contact</loc>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://starstreak.org/privacy</loc>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://starstreak.org/terms</loc>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://starstreak.org/cookie-policy</loc>
+    <loc>https://starstreak.org/forgot-password</loc>
+    <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
 </urlset>

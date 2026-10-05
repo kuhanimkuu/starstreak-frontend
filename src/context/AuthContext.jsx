@@ -1,86 +1,61 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase/client';
+import { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 
-const AuthContext = createContext();
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-  return context;
-};
+const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [userRole, setUserRole] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser]         = useState(null);
+  const [profile, setProfile]   = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
-  const fetchUserRole = async (userId) => {
-    try {
-      const { data } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', userId)
-        .single();
-      const role = data?.role ?? null;
-      setUserRole(role);
-      return role;
-    } catch {
-      setUserRole(null);
-      return null;
+  async function loadProfile(uid) {
+    let { data } = await supabase.rpc("get_website_profile", { p_firebase_uid: uid });
+    // No row yet — auto-create (first time signing in via website)
+    if (!data?.length) {
+      const { data: { user: u } } = await supabase.auth.getUser();
+      if (u) {
+        await supabase.rpc("create_website_user", {
+          p_firebase_uid: uid,
+          p_email:        u.email,
+          p_display_name: u.user_metadata?.full_name || u.user_metadata?.name || "User",
+          p_avatar_url:   u.user_metadata?.avatar_url || null,
+        });
+        const refetch = await supabase.rpc("get_website_profile", { p_firebase_uid: uid });
+        data = refetch.data;
+      }
     }
-  };
-
-  const signIn = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-    return data;
-  };
-
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setCurrentUser(null);
-    setUserRole(null);
-  };
+    setProfile(data?.[0] || null);
+  }
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setCurrentUser(session?.user ?? null);
+    // onAuthStateChange fires immediately with INITIAL_SESSION — no getSession() needed
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user || null);
+      // Auth state is known immediately — don't wait for profile to unblock the app
+      setAuthLoading(false);
       if (session?.user) {
-        await fetchUserRole(session.user.id);
-      }
-      setLoading(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setCurrentUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchUserRole(session.user.id);
+        loadProfile(session.user.id).catch(() => {});
       } else {
-        setUserRole(null);
+        setProfile(null);
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const isAdmin = () => userRole === 'super_admin';
-  const isTeamMember = () => userRole === 'team_member' || userRole === 'super_admin';
-
-  const value = {
-    currentUser,
-    userRole,
-    loading,
-    signIn,
-    signOut,
-    isAdmin,
-    isTeamMember,
-  };
+  async function refreshProfile() {
+    if (!user) return;
+    const { data } = await supabase.rpc("get_website_profile", { p_firebase_uid: user.id });
+    setProfile(data?.[0] || null);
+  }
 
   return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
+    <AuthContext.Provider value={{ user, profile, authLoading, refreshProfile }}>
+      {children}
     </AuthContext.Provider>
   );
+}
+
+export function useAuth() {
+  return useContext(AuthContext);
 }
