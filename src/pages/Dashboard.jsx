@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
+import { WEB_APP_URL } from "../lib/storeLinks";
+import { openWebApp } from "../lib/webApp";
 import {
   FiFileText, FiUsers, FiZap, FiHeart, FiEye,
   FiTrendingUp, FiDownload, FiArrowRight, FiCheckCircle, FiCircle, FiUser,
@@ -274,10 +276,21 @@ export default function Dashboard() {
             <div className="glow-flare absolute -right-10 -top-10 h-40 w-40" />
             <FiDownload className="relative text-2xl mb-2 text-flare" />
             <h3 className="relative font-bold mb-1">Get the full experience</h3>
-            <p className="relative text-xs text-mist mb-4">Post, chat, join communities and more in the Starstreak app.</p>
-            <Link to="/download" className="btn-flare relative w-full !py-2 text-sm">
-              Download App
-            </Link>
+            <p className="relative text-xs text-mist mb-4">
+              Post, chat, join communities and more{WEB_APP_URL ? " — right here in your browser." : " in the Starstreak app."}
+            </p>
+            {WEB_APP_URL ? (
+              <>
+                <button onClick={openWebApp} className="btn-flare relative w-full !py-2 text-sm">
+                  Open Starstreak
+                </button>
+                <p className="relative mt-2 text-center text-[11px] text-dust">You’ll continue there, signed in.</p>
+              </>
+            ) : (
+              <Link to="/download" className="btn-flare relative w-full !py-2 text-sm">
+                Download App
+              </Link>
+            )}
           </div>
         </div>
       </div>

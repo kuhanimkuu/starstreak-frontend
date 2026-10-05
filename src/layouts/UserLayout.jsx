@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
-import { FiGrid, FiFileText, FiUsers, FiUser, FiSettings, FiLogOut, FiMenu, FiX, FiDownload } from "react-icons/fi";
+import { FiGrid, FiFileText, FiUsers, FiUser, FiSettings, FiLogOut, FiMenu, FiX, FiDownload, FiExternalLink } from "react-icons/fi";
+import { WEB_APP_URL } from "../lib/storeLinks";
+import { openWebApp } from "../lib/webApp";
 import FlarelyMark from "../components/FlarelyMark";
 import Mascot from "../components/ui/Mascot";
 
@@ -83,6 +85,14 @@ export default function UserLayout({ children }) {
       </nav>
 
       <div className="mt-4 space-y-1 border-t border-line px-3 pt-4">
+        {WEB_APP_URL && (
+          <button
+            onClick={openWebApp}
+            className="flex w-full items-center gap-3 rounded-xl bg-flare/10 px-3 py-2.5 text-sm font-semibold text-flare transition-colors hover:bg-flare/20"
+          >
+            <FiExternalLink className="text-base" /> Open the web app
+          </button>
+        )}
         <Link
           to="/download"
           onClick={close}
