@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
+import { nextPath } from "../lib/nextPath";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import AuthShell, { AuthError, OrDivider, googleBtn } from "../components/ui/AuthShell";
@@ -20,7 +21,7 @@ export default function Login() {
       setError("Invalid email or password.");
       setLoading(false);
     } else {
-      navigate("/dashboard");
+      navigate(nextPath());
     }
   }
 
@@ -29,7 +30,7 @@ export default function Login() {
     setLoading(true);
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/dashboard` },
+      options: { redirectTo: `${window.location.origin}${nextPath()}` },
     });
     if (err) {
       setError("Failed to sign in with Google. Please try again.");

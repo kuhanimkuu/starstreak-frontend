@@ -9,8 +9,7 @@ export const STORE_LINKS = {
 };
 
 /**
- * The Starstreak web app (Flutter build on Cloudflare Pages). Leave null until
- * app.starstreak.org is live — every "Open the web app" button hides itself
- * while this is null.
+ * The Starstreak web app — part of this site (same sign-in). Set to null to
+ * hide every "Open the web app" button.
  */
-export const WEB_APP_URL = null; // "https://app.starstreak.org"
+export const WEB_APP_URL = "/home";

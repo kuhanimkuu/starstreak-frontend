@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import MainLayout from "./layouts/MainLayout";
 import AdminLayout from "./layouts/AdminLayout";
@@ -65,6 +65,24 @@ import AdminContent from "./pages/admin/AdminContent";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminRoute from "./components/AdminRoute";
 
+// Web app (logged-in Starstreak)
+import AppRoute from "./app/AppRoute";
+import HomePage from "./app/pages/HomePage";
+import PostPage from "./app/pages/PostPage";
+import ProfilePage from "./app/pages/ProfilePage";
+import SoonPage from "./app/pages/SoonPage";
+import ExplorePage from "./app/pages/ExplorePage";
+import NotificationsPage from "./app/pages/NotificationsPage";
+import CommunitiesPage from "./app/pages/CommunitiesPage";
+import CommunityPage from "./app/pages/CommunityPage";
+import FlashesPage from "./app/pages/FlashesPage";
+import FlashPage from "./app/pages/FlashPage";
+// The web is the lighter Starstreak: messages and creating communities / Flashes
+// are app-only. Their full web versions are kept (app/pages/MessagesPage.jsx,
+// CreatePages.jsx) — swap the elements below back to switch them on.
+import AppOnlyPage from "./app/pages/AppOnlyPage";
+import SavedPage from "./app/pages/SavedPage";
+
 import "./styles/globals.css";
 
 function OpsPage({ children }) {
@@ -95,6 +113,27 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/signup"         element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password"  element={<ResetPassword />} />
+
+          {/* Web app — logged in */}
+          <Route element={<AppRoute />}>
+            <Route path="/home"               element={<HomePage />} />
+            <Route path="/post/:id"           element={<PostPage />} />
+            <Route path="/profile/:username"  element={<ProfilePage />} />
+            <Route path="/explore"            element={<ExplorePage />} />
+            <Route path="/saved"              element={<SavedPage />} />
+            <Route path="/notifications"      element={<NotificationsPage />} />
+            <Route path="/messages"                             element={<AppOnlyPage feature="messages" />} />
+            <Route path="/messages/:conversationId"             element={<AppOnlyPage feature="messages" />} />
+            <Route path="/communities"                          element={<CommunitiesPage />} />
+            <Route path="/communities/new"                      element={<AppOnlyPage feature="community" />} />
+            <Route path="/communities/:communityId"             element={<CommunityPage />} />
+            <Route path="/communities/:communityId/post/:postId" element={<PostPage kind="community" />} />
+            <Route path="/flashes"                              element={<FlashesPage />} />
+            <Route path="/flashes/new"                          element={<AppOnlyPage feature="flash" />} />
+            <Route path="/flashes/:flashId"                     element={<FlashPage />} />
+            <Route path="/flashes/:flashId/post/:postId"        element={<PostPage kind="flash" />} />
+          </Route>
+          <Route path="/app" element={<Navigate to="/home" replace />} />
 
           {/* User portal — UserLayout with sidebar */}
           <Route path="/dashboard"      element={<UserPage><Dashboard /></UserPage>} />
