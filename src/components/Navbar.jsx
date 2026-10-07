@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { FiMenu, FiX, FiChevronDown } from "react-icons/fi";
 import { supabase } from "../lib/supabase";
 import FlarelyMark from "./FlarelyMark";
+import { WEB_APP_URL } from "../lib/storeLinks";
 
 const LINKS = [
   { to: "/features", label: "Features" },
@@ -169,9 +170,11 @@ export default function Navbar() {
             <div className="mt-auto space-y-3 pt-8">
               {user ? (
                 <>
-                  <Link to="/home" onClick={() => setMobileOpen(false)} className="btn-flare w-full">
-                    Open Starstreak
-                  </Link>
+                  {WEB_APP_URL && (
+                    <Link to={WEB_APP_URL} onClick={() => setMobileOpen(false)} className="btn-flare w-full">
+                      Open Starstreak
+                    </Link>
+                  )}
                   <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="btn-ghost w-full">
                     Dashboard
                   </Link>
