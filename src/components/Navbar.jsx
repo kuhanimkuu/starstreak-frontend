@@ -58,6 +58,7 @@ export default function Navbar() {
   const initial = (user?.user_metadata?.full_name || user?.email || "?")[0]?.toUpperCase();
 
   return (
+    <>
     <nav
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         scrolled || mobileOpen ? "border-b border-line bg-night-900/85 backdrop-blur-xl" : "border-b border-transparent"
@@ -144,14 +145,20 @@ export default function Navbar() {
         </div>
       </div>
 
+    </nav>
+
+    {/* Outside <nav>: its backdrop blur would otherwise trap this fixed panel
+        inside the 72px bar (backdrop-filter creates a containing block). */}
       {mobileOpen && (
-        <div className="fixed inset-x-0 bottom-0 top-[72px] overflow-y-auto bg-night-900 lg:hidden">
+        <div className="fixed inset-x-0 bottom-0 top-[72px] z-40 overflow-y-auto overscroll-contain bg-night-900 lg:hidden"
+             role="dialog" aria-modal aria-label="Menu">
           <div className="container-ss flex min-h-full flex-col gap-2 py-6">
             {[{ to: "/", label: "Home" }, ...LINKS, { to: "/download", label: "Download" }].map((l) => (
               <NavLink
                 key={l.to}
                 to={l.to}
                 end={l.to === "/"}
+                onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
                   `rounded-2xl px-4 py-4 text-2xl font-bold ${isActive ? "bg-night-800 text-flare" : "text-star"}`
                 }
@@ -162,25 +169,28 @@ export default function Navbar() {
             <div className="mt-auto space-y-3 pt-8">
               {user ? (
                 <>
-                  <Link to="/dashboard" className="btn-ghost w-full">
+                  <Link to="/home" onClick={() => setMobileOpen(false)} className="btn-flare w-full">
+                    Open Starstreak
+                  </Link>
+                  <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="btn-ghost w-full">
                     Dashboard
                   </Link>
-                  <button onClick={() => supabase.auth.signOut()} className="w-full py-3 text-red-400">
+                  <button onClick={() => { setMobileOpen(false); supabase.auth.signOut(); }} className="w-full py-3 text-red-400">
                     Log out
                   </button>
                 </>
               ) : (
-                <Link to="/login" className="btn-ghost w-full">
+                <Link to="/login" onClick={() => setMobileOpen(false)} className="btn-ghost w-full">
                   Log in
                 </Link>
               )}
-              <Link to="/download" className="btn-flare w-full">
+              <Link to="/download" onClick={() => setMobileOpen(false)} className="btn-flare w-full">
                 Get the app
               </Link>
             </div>
           </div>
         </div>
       )}
-    </nav>
+    </>
   );
 }
