@@ -27,7 +27,7 @@ export default function AdminDashboard() {
       { data: reports },
     ] = await Promise.all([
       supabase.from("users_admin").select("*", { count: "exact", head: true }).neq("is_deleted", true),
-      supabase.from("posts").select("*", { count: "exact", head: true }).neq("is_deleted", true),
+      supabase.from("posts_public").select("*", { count: "exact", head: true }).neq("is_deleted", true),
       supabase.from("communities").select("*", { count: "exact", head: true }).neq("is_archived", true),
       supabase.from("flash_communities").select("*", { count: "exact", head: true }).neq("is_archived", true),
       supabase.from("content_reports").select("*", { count: "exact", head: true }).eq("status", "pending"),
