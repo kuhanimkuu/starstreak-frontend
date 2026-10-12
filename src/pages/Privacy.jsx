@@ -8,7 +8,7 @@ export default function Privacy() {
   const [dbContent, setDbContent] = useState(null);
   const [dbUpdatedAt, setDbUpdatedAt] = useState(null);
   const [loading, setLoading] = useState(true);
-  const lastUpdated = 'March 22, 2026';
+  const lastUpdated = 'October 12, 2026';
 
   useEffect(() => {
     supabase
@@ -102,7 +102,8 @@ export default function Privacy() {
                 <ul>
                   <li><strong>Device Information:</strong> IP address, device type, operating system, app version.</li>
                   <li><strong>Usage Data:</strong> app interactions, pages viewed, session duration.</li>
-                  <li><strong>Approximate Location:</strong> derived from IP address only. No GPS or precise location data is collected.</li>
+                  <li><strong>Approximate Location:</strong> your rough area (city, county, country) estimated from your IP address each time you open the app, used for suggestions near you and to decide which Regional spaces you can join. We do not store the IP address with it.</li>
+                  <li><strong>Precise Location (only when you choose):</strong> a one-time GPS reading when you join or set up a Local or Regional community or Flash, or update your location in Settings. There is no background tracking and no location history.</li>
                 </ul>
               </section>
               <section id="third-parties" className="mb-8">
@@ -121,7 +122,7 @@ export default function Privacy() {
               </section>
               <section id="how-share" className="mb-8">
                 <h2>6. How We Share Information</h2>
-                <p>We share data only with trusted service providers (Supabase Inc. for infrastructure, Google Firebase for push notifications) under contractual obligations. We do not sell data to any third party.</p>
+                <p>We share data only with trusted service providers (Supabase Inc. for infrastructure, Google Firebase for push notifications, IPinfo, Inc. for estimating approximate location from IP addresses) under contractual obligations. We do not sell data to any third party.</p>
               </section>
               <section id="retention" className="mb-8">
                 <h2>7. Data Retention</h2>
