@@ -67,6 +67,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminContent from "./pages/admin/AdminContent";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminPublish from "./pages/admin/AdminPublish";
+import AdminOfficialCommunity from "./pages/admin/AdminOfficialCommunity";
 import AdminRoute from "./components/AdminRoute";
 
 // Web app (logged-in Starstreak)
@@ -156,6 +157,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/ops/settings"    element={<OpsPage><AdminSettings /></OpsPage>} />
           <Route path="/ops/content"     element={<OpsPage><AdminContent /></OpsPage>} />
           <Route path="/ops/publish"     element={<OpsPage><AdminPublish /></OpsPage>} />
+          <Route path="/ops/starstreak-community" element={<OpsPage><AdminOfficialCommunity /></OpsPage>} />
           <Route path="/ops/messages"    element={<OpsPage><AdminMessages /></OpsPage>} />
 
           {/* Deep links — public MainLayout */}
