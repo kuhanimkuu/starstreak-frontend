@@ -34,7 +34,11 @@ export function plainTextToHtml(text) {
       continue;
     }
     let rest = lines;
-    if (lines.length > 1 && isHeading(lines[0]) && !isHeading(lines[1])) {
+    // A short title line (capitalised, no commas or full stops) over more text.
+    const first = lines[0];
+    const titleLike =
+      isHeading(first) && first.length <= 40 && /^[A-Z0-9]/.test(first) && !/[,.]/.test(first);
+    if (lines.length > 1 && titleLike && lines.slice(1).join(" ").length > first.length * 2) {
       out.push(`<h3>${escapeHtml(lines[0])}</h3>`);
       rest = lines.slice(1);
     }
