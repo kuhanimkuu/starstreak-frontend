@@ -71,6 +71,8 @@ export default function AdminPublish() {
   const [content, setContent] = useState("");
   const [files, setFiles] = useState([]);
   const [where, setWhere] = useState("feed");
+  // TEMPORARY (testing): instant silent push via official-post-push.
+  const [instantPush, setInstantPush] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -126,14 +128,23 @@ export default function AdminPublish() {
     try {
       const folder = `official_${Date.now()}`;
       const urls = await Promise.all(files.map((f) => uploadMedia(f, user.id, folder)));
-      const { error: rpcError } = await supabase.rpc("ops_publish_official_post", {
+      const { data: published, error: rpcError } = await supabase.rpc("ops_publish_official_post", {
         p_content: content.trim(), p_media_urls: urls, p_where: where,
       });
       if (rpcError) throw new Error(rpcError.message);
+      let pushNote = "";
+      if (instantPush && published?.post_id) {
+        const { data: push, error: pushError } = await supabase.functions.invoke("official-post-push", {
+          body: { postId: published.post_id },
+        });
+        pushNote = pushError
+          ? ` The instant push failed: ${pushError.message}`
+          : ` Instant push sent to ${push?.people ?? 0} people (${push?.sent ?? 0} phones, ${push?.failed ?? 0} failed).`;
+      }
       setContent("");
       setFiles([]);
       setConfirming(false);
-      setNotice("Published. It's live in the app now.");
+      setNotice(`Published. It's live in the app now.${pushNote}`);
       load();
     } catch (e) {
       setError(e.message || "Couldn't publish.");
@@ -218,6 +229,19 @@ export default function AdminPublish() {
               </label>
             ))}
           </fieldset>
+
+          {where !== "community" && (
+            <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-dashed border-amber-500/40 px-3 py-2.5">
+              <input type="checkbox" checked={instantPush} onChange={(e) => setInstantPush(e.target.checked)}
+                     className="mt-1 accent-[#FF6D1F]" />
+              <span>
+                <span className="block text-sm font-medium text-star">Send instant push (test)</span>
+                <span className="block text-xs text-dust">
+                  Sends it to everyone's phone right now as a silent notification (no sound or vibration), including you. Temporary, for testing.
+                </span>
+              </span>
+            </label>
+          )}
 
           {error && <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs text-red-400">{error}</p>}
           {notice && <p className="rounded-lg border border-green-500/20 bg-green-500/10 px-3 py-2 text-xs text-green-400">{notice}</p>}
