@@ -58,7 +58,7 @@ export default function Careers() {
             {ROLES.map(({ icon: Icon, title, body, meta }, i) => (
               <Reveal key={title} delay={(i % 2) * 100}>
                 <a
-                  href={`mailto:careers@starstreak.org?subject=${encodeURIComponent(`Application: ${title}`)}`}
+                  href={`/contact?category=careers&subject=${encodeURIComponent(`Application: ${title}`)}`}
                   className="card-night card-hover group flex h-full flex-col p-8"
                 >
                   <div className="flex items-start justify-between">
@@ -83,7 +83,7 @@ export default function Careers() {
           <p className="mt-3 max-w-xl text-mist">
             We’re always happy to meet talented people. If you can help build Starstreak, tell us how.
           </p>
-          <a href="mailto:careers@starstreak.org" className="btn-flare mt-8">
+          <a href="/contact?category=careers&subject=Open%20application" className="btn-flare mt-8">
             Send an open application
           </a>
         </div>

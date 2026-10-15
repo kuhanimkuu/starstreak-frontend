@@ -9,7 +9,7 @@ const PAGE_SIZE = 25;
 
 const STATUS_OPTIONS = ["new", "in_progress", "resolved", "closed"];
 const PRIORITY_OPTIONS = ["low", "normal", "high", "urgent"];
-const CATEGORY_OPTIONS = ["all", "general", "bug", "safety", "feedback", "billing", "other"];
+const CATEGORY_OPTIONS = ["all", "general", "bug", "safety", "feedback", "billing", "careers", "press", "accessibility", "privacy", "legal", "other"];
 
 const STATUS_STYLES = {
   new:         { label: "New",         color: "bg-flare/20 text-flare-soft" },

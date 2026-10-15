@@ -34,7 +34,7 @@ export default function CookiePolicy() {
           </div>
         </nav>
 
-        <article className="prose prose-neutral max-w-4xl mx-auto">
+        <article className="prose prose-invert prose-headings:text-star prose-p:text-mist prose-li:text-mist prose-strong:text-star prose-a:text-flare hover:prose-a:text-gold max-w-4xl mx-auto">
 
           {/* 1. What Are Cookies */}
           <section id="what-are-cookies" className="mb-10">
@@ -167,8 +167,8 @@ export default function CookiePolicy() {
             <div className="mt-4 bg-night-800 p-6 rounded-lg shadow-sm border border-line">
               <p className="font-semibold">Privacy & Cookie Inquiries</p>
               <p className="text-sm text-mist mt-1">
-                Email: <a className="text-brand hover:underline" href="mailto:privacy@starstreak.org">
-                  privacy@starstreak.org
+                <a className="text-brand hover:underline" href="/contact?category=privacy">
+                  Contact our privacy team
                 </a>
               </p>
               <p className="text-sm text-mist mt-2">

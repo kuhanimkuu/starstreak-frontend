@@ -82,7 +82,7 @@ export default function Terms() {
             </nav>
 
             {/* Fallback static content */}
-            <article className="prose prose-neutral max-w-4xl mx-auto">
+            <article className="prose prose-invert prose-headings:text-star prose-p:text-mist prose-li:text-mist prose-strong:text-star prose-a:text-flare hover:prose-a:text-gold max-w-4xl mx-auto">
               <section id="acceptance" className="mb-8">
                 <h2>1. Acceptance of Terms</h2>
                 <p>By accessing or using Starstreak (the "Service"), you agree to be bound by these Terms and our <Link to="/privacy" className="text-brand hover:underline">Privacy Policy</Link>, and any other applicable policies posted by us. If you do not agree to these Terms, do not use the Service.</p>
@@ -156,7 +156,7 @@ export default function Terms() {
                 <h2>16. Contact</h2>
                 <div className="mt-4 bg-night-800 p-6 rounded-lg shadow-sm border border-line">
                   <p className="font-semibold">Legal & Terms</p>
-                  <p className="text-sm text-mist mt-1">Email: <a href="mailto:legal@starstreak.org" className="text-brand hover:underline">legal@starstreak.org</a></p>
+                  <p className="text-sm text-mist mt-1">Email: <a href="/contact?category=legal" className="text-brand hover:underline">contact our legal team</a></p>
                   <p className="text-sm text-mist mt-2">Support: <Link to="/support" className="text-brand hover:underline">/support</Link></p>
                   <p className="text-sm text-mist mt-2">Company: Hephix Ltd</p>
                 </div>
@@ -168,8 +168,8 @@ export default function Terms() {
         {/* Footer links */}
         <div className="max-w-4xl mx-auto mt-10 text-center text-sm text-dust space-y-4">
           <p>
-            Questions? Email{' '}
-            <a href="mailto:legal@starstreak.org" className="text-brand hover:underline">legal@starstreak.org</a>
+            Questions?{' '}
+            <a href="/contact?category=legal" className="text-brand hover:underline">contact our legal team</a>
             {' '}or visit{' '}
             <Link to="/support" className="text-brand hover:underline">Support</Link>.
           </p>

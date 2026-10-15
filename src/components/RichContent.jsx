@@ -1,4 +1,5 @@
 import DOMPurify from 'dompurify';
+import { plainTextToHtml } from '../lib/plainText';
 
 /**
  * Renders rich content stored as HTML (from TipTap editor) or as plain text
@@ -31,10 +32,13 @@ export default function RichContent({ content, className = '' }) {
     );
   }
 
-  // Legacy plain-text content — preserve whitespace
+  // Plain text (pasted, often with hard line breaks and stray indents):
+  // reflowed into headings, paragraphs and lists rather than shown as typed.
+  // plainTextToHtml escapes everything, and DOMPurify runs over it anyway.
   return (
-    <pre className={`whitespace-pre-wrap font-sans text-base text-mist leading-relaxed ${className}`}>
-      {content}
-    </pre>
+    <div
+      className={`rich-content ${className}`}
+      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(plainTextToHtml(content)) }}
+    />
   );
 }

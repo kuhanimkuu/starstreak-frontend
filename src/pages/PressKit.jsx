@@ -153,8 +153,8 @@ export default function PressKit() {
           </span>
           <h2 className="h-display mt-6 text-3xl text-star md:text-4xl">Press contact</h2>
           <p className="mt-3 max-w-xl text-mist">For interviews, enquiries or media coverage, reach our communications team.</p>
-          <a href="mailto:press@starstreak.org" className="btn-flare mt-8">
-            press@starstreak.org
+          <a href="/contact?category=press" className="btn-flare mt-8">
+            Contact our press team
           </a>
         </div>
       </section>

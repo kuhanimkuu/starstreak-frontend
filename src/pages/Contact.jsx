@@ -10,6 +10,11 @@ const CATEGORIES = [
   { value: "safety", label: "Safety concern" },
   { value: "feedback", label: "Feedback / suggestion" },
   { value: "billing", label: "Account" },
+  { value: "careers", label: "Careers / job application" },
+  { value: "press", label: "Press & media" },
+  { value: "accessibility", label: "Accessibility" },
+  { value: "privacy", label: "Privacy & data" },
+  { value: "legal", label: "Legal & terms" },
   { value: "other", label: "Other" },
 ];
 
@@ -21,8 +26,20 @@ const RESPONSE_TIMES = [
 
 const EMPTY = { name: "", email: "", subject: "", category: "general", message: "" };
 
+// Other pages link here instead of to email addresses, so every enquiry
+// lands in the ops dashboard (Messages): /contact?category=press&subject=…
+function initialForm() {
+  const q = new URLSearchParams(window.location.search);
+  const category = q.get("category");
+  return {
+    ...EMPTY,
+    category: CATEGORIES.some((c) => c.value === category) ? category : EMPTY.category,
+    subject: (q.get("subject") || "").slice(0, 150),
+  };
+}
+
 export default function Contact() {
-  const [form, setForm] = useState(EMPTY);
+  const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
@@ -52,6 +69,7 @@ export default function Contact() {
     }
     setSent(true);
   }
+
 
   return (
     <>
@@ -137,9 +155,7 @@ export default function Contact() {
               <ul className="mt-5 space-y-4 text-mist">
                 <li className="flex items-center gap-3">
                   <FiMail className="text-accent" />
-                  <a href="mailto:support@starstreak.org" className="hover:text-star">
-                    support@starstreak.org
-                  </a>
+                  The form reaches our team directly, the fastest way to get a reply.
                 </li>
                 <li className="flex items-center gap-3">
                   <FiMapPin className="text-accent" />

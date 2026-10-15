@@ -82,8 +82,8 @@ export default function Accessibility() {
             Accessibility is a journey. If something on Starstreak gets in your way, or you have ideas to make it
             better, we want to hear from you.
           </p>
-          <a href="mailto:accessibility@starstreak.org" className="btn-flare mt-8">
-            accessibility@starstreak.org
+          <a href="/contact?category=accessibility" className="btn-flare mt-8">
+            Tell us about it
           </a>
         </div>
       </section>

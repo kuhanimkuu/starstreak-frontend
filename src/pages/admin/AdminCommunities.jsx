@@ -131,6 +131,7 @@ export default function AdminCommunities() {
     } else if (filter === "pending_verification") {
       q = q
         .neq("type", "nexoraOfficial")
+        .neq("verification_status", "verified")
         .neq("is_suspended", true)
         .gte("member_count", VERIFY_MIN_MEMBERS)
         .gte("post_count", VERIFY_MIN_POSTS);
@@ -243,14 +244,28 @@ export default function AdminCommunities() {
   }
 
   // ── Actions ─────────────────────────────────────────────────────────────────
+  // "Verified community" = the free blue check (strategy v3). The gold
+  // Official type belongs to the Starstreak community only and is never set
+  // or removed from here (the database allows one).
   async function verifyCommunity(id) {
-    await supabase.from("communities").update({ type: "nexoraOfficial" }).eq("id", id);
-    setCommunities(prev => prev.map(c => c.id === id ? { ...c, type: "nexoraOfficial" } : c));
+    const { data: { user } } = await supabase.auth.getUser();
+    const change = {
+      verification_status: "verified",
+      verification_tier: "peerVerified",
+      verified_at: new Date().toISOString(),
+      verified_by: user?.id ?? null,
+    };
+    const { error } = await supabase.from("communities").update(change).eq("id", id);
+    if (error) return window.alert(`Couldn't verify: ${error.message}`);
+    setCommunities(prev => prev.map(c => c.id === id ? { ...c, ...change } : c));
   }
 
   async function unverify(id) {
-    await supabase.from("communities").update({ type: "public" }).eq("id", id);
-    setCommunities(prev => prev.map(c => c.id === id ? { ...c, type: "public" } : c));
+    if (!window.confirm("Remove this community's blue check?")) return;
+    const change = { verification_status: "pending", verification_tier: "unverified", verified_at: null, verified_by: null };
+    const { error } = await supabase.from("communities").update(change).eq("id", id);
+    if (error) return window.alert(`Couldn't remove verification: ${error.message}`);
+    setCommunities(prev => prev.map(c => c.id === id ? { ...c, ...change } : c));
   }
 
   async function confirmSuspend() {
@@ -347,7 +362,7 @@ export default function AdminCommunities() {
         <div className="flex items-center gap-2 text-xs text-dust bg-night-850 border border-line rounded-lg px-4 py-2.5">
           <FiCheckCircle className="text-flare-soft flex-shrink-0" />
           Showing communities with <span className="text-star mx-1">{VERIFY_MIN_MEMBERS}+ members</span> and
-          <span className="text-star mx-1">{VERIFY_MIN_POSTS}+ posts</span> not yet Official
+          <span className="text-star mx-1">{VERIFY_MIN_POSTS}+ posts</span> not yet verified
         </div>
       )}
       {(filter === "at_risk" || filter === "pending_suspension") && tab === "normal" && (
@@ -383,6 +398,7 @@ export default function AdminCommunities() {
                 const rCount = reportCounts[community.id] || 0;
                 const isVerifiable = tab === "normal"
                   && community.type !== "nexoraOfficial"
+                  && community.verification_status !== "verified"
                   && (community.member_count || 0) >= VERIFY_MIN_MEMBERS
                   && (community.post_count || 0) >= VERIFY_MIN_POSTS;
 
@@ -397,8 +413,13 @@ export default function AdminCommunities() {
                           <h3 className="text-star font-semibold text-sm truncate">{community.name}</h3>
                           {tab === "flash" && <FlashBadge community={community} />}
                           {tab === "normal" && community.type === "nexoraOfficial" && (
-                            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-flare/20 text-flare-soft">
-                              <FiStar className="text-xs" /> Official
+                            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-amber-500/20 text-amber-300">
+                              <FiStar className="text-xs" /> Starstreak Official
+                            </span>
+                          )}
+                          {tab === "normal" && community.type !== "nexoraOfficial" && community.verification_status === "verified" && (
+                            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-sky-500/20 text-sky-300">
+                              <FiCheckCircle className="text-xs" /> Verified
                             </span>
                           )}
                           {tab === "normal" && community.is_suspended && (
@@ -439,15 +460,15 @@ export default function AdminCommunities() {
                     {/* Actions */}
                     <div className="flex items-center gap-2 pt-1 flex-wrap">
                       {/* Verify / Unverify — normal only */}
-                      {tab === "normal" && !community.is_suspended && (
-                        community.type === "nexoraOfficial"
+                      {tab === "normal" && !community.is_suspended && community.type !== "nexoraOfficial" && (
+                        community.verification_status === "verified"
                           ? <button onClick={() => unverify(community.id)}
-                              className="flex-1 text-xs py-1.5 rounded-lg bg-flare/20 text-flare-soft hover:bg-flare/30 transition-colors">
-                              Remove Official
+                              className="flex-1 text-xs py-1.5 rounded-lg bg-sky-500/15 text-sky-300 hover:bg-sky-500/25 transition-colors">
+                              Remove verification
                             </button>
                           : <button onClick={() => verifyCommunity(community.id)}
-                              className="flex-1 text-xs py-1.5 rounded-lg bg-flare/20 text-flare-soft hover:bg-flare/30 transition-colors flex items-center justify-center gap-1">
-                              <FiStar className="text-xs" /> Make Official
+                              className="flex-1 text-xs py-1.5 rounded-lg bg-sky-500/15 text-sky-300 hover:bg-sky-500/25 transition-colors flex items-center justify-center gap-1">
+                              <FiCheckCircle className="text-xs" /> Verify
                             </button>
                       )}
 

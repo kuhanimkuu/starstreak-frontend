@@ -80,7 +80,7 @@ export default function Privacy() {
             </nav>
 
             {/* Fallback static content */}
-            <article className="prose prose-neutral max-w-4xl mx-auto">
+            <article className="prose prose-invert prose-headings:text-star prose-p:text-mist prose-li:text-mist prose-strong:text-star prose-a:text-flare hover:prose-a:text-gold max-w-4xl mx-auto">
               <section id="introduction" className="mb-8">
                 <h2>1. Introduction</h2>
                 <p>Welcome to Starstreak, a social and community platform operated by <strong>Hephix Ltd</strong> ("we", "our", or "us"). This Privacy Policy explains how we collect, use, disclose, and protect information when you use Starstreak.</p>
@@ -130,7 +130,7 @@ export default function Privacy() {
               </section>
               <section id="rights" className="mb-8">
                 <h2>8. Your Rights & Controls</h2>
-                <p>Under the Data Protection Act, 2019 (Kenya), you have rights of access, rectification, erasure, portability, restriction, and objection. Contact us at <a href="mailto:privacy@starstreak.org" className="text-brand hover:underline">privacy@starstreak.org</a> to exercise these rights. We respond within 30 days.</p>
+                <p>Under the Data Protection Act, 2019 (Kenya), you have rights of access, rectification, erasure, portability, restriction, and objection. Use our <a href="/data-request" className="text-brand hover:underline">data request form</a> or <a href="/contact?category=privacy" className="text-brand hover:underline">contact our privacy team</a> to exercise these rights. We respond within 30 days.</p>
               </section>
               <section id="cookies" className="mb-8">
                 <h2>9. Cookies & Tracking Technologies</h2>
@@ -156,7 +156,7 @@ export default function Privacy() {
                 <h2>14. Contact Us</h2>
                 <div className="mt-4 bg-night-800 p-6 rounded-lg shadow-sm border border-line">
                   <p className="font-semibold">Privacy & Data Requests</p>
-                  <p className="text-sm text-mist mt-1">Email: <a className="text-brand hover:underline" href="mailto:privacy@starstreak.org">privacy@starstreak.org</a></p>
+                  <p className="text-sm text-mist mt-1"><a className="text-brand hover:underline" href="/data-request">Data request form</a> · <a className="text-brand hover:underline" href="/contact?category=privacy">Contact our privacy team</a></p>
                   <p className="text-sm text-mist mt-2">Support: <Link to="/support" className="text-brand hover:underline">/support</Link></p>
                   <p className="text-sm text-mist mt-2">Company: Hephix Ltd, Nairobi, Kenya</p>
                 </div>
@@ -169,7 +169,7 @@ export default function Privacy() {
         <div className="max-w-4xl mx-auto mt-10 text-center text-sm text-dust space-y-4">
           <p>
             Questions? Email{' '}
-            <a href="mailto:privacy@starstreak.org" className="text-brand hover:underline">privacy@starstreak.org</a>
+            <a href="/contact?category=privacy" className="text-brand hover:underline">contact our privacy team</a>
             {' '}or visit{' '}
             <Link to="/support" className="text-brand hover:underline">Support</Link>.
           </p>

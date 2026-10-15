@@ -108,10 +108,8 @@ export default function DataRequest() {
               ))}
             </ol>
             <p className="mt-5 border-t border-line pt-4 text-xs text-dust">
-              Processing typically takes 5–10 business days. For urgent requests, email{" "}
-              <a href="mailto:privacy@starstreak.org" className="text-accent hover:text-gold">
-                privacy@starstreak.org
-              </a>
+              Processing typically takes 5–10 business days. For urgent requests,{" "}
+              <a href="/contact?category=privacy" className="text-accent hover:text-gold">contact our privacy team</a>
               .
             </p>
           </div>
@@ -275,10 +273,8 @@ export default function DataRequest() {
           </div>
 
           <p className="text-center text-sm text-dust">
-            Questions? Email{" "}
-            <a href="mailto:privacy@starstreak.org" className="text-accent hover:text-gold">
-              privacy@starstreak.org
-            </a>
+            Questions?{" "}
+            <a href="/contact?category=privacy" className="text-accent hover:text-gold">contact our privacy team</a>
           </p>
         </div>
       </section>

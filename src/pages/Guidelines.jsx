@@ -83,8 +83,8 @@ export default function Guidelines() {
           <p>Starstreak is built by everyone. Thanks for helping keep it safe and welcoming.</p>
           <p className="mt-3 text-sm">
             Questions?{" "}
-            <a href="mailto:support@starstreak.org" className="text-accent hover:text-gold">
-              support@starstreak.org
+            <a href="/contact" className="text-accent hover:text-gold">
+              Contact us
             </a>{" "}
             ·{" "}
             <Link to="/support" className="text-accent hover:text-gold">
