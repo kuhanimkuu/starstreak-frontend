@@ -11,7 +11,7 @@ const NAV = [
   { label: "Dashboard", path: "/ops", icon: FiHome },
   { label: "Post as Starstreak", path: "/ops/publish", icon: FiVolume2 },
   { label: "Starstreak community", path: "/ops/starstreak-community", icon: FiStar },
-  { label: "Organisations", path: "/ops/organisations", icon: FiBriefcase },
+  { label: "Organisation reviews", path: "/ops/organisations", icon: FiBriefcase },
   { label: "Users", path: "/ops/users", icon: FiUsers },
   { label: "Communities", path: "/ops/communities", icon: FiLayers },
   { label: "Messages", path: "/ops/messages", icon: FiMail },

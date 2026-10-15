@@ -69,6 +69,10 @@ import AdminMessages from "./pages/admin/AdminMessages";
 import AdminPublish from "./pages/admin/AdminPublish";
 import AdminOfficialCommunity from "./pages/admin/AdminOfficialCommunity";
 import AdminSponsorships from "./pages/admin/AdminSponsorships";
+import BusinessLayout, { BusinessHome, BusinessRoute } from "./layouts/BusinessLayout";
+import {
+  BusinessOverview, BusinessPromotions, BusinessAnalytics, BusinessTeam, BusinessBilling, BusinessSettings,
+} from "./pages/business/BusinessPages";
 import AdminRoute from "./components/AdminRoute";
 
 // Web app (logged-in Starstreak)
@@ -160,6 +164,16 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/ops/publish"     element={<OpsPage><AdminPublish /></OpsPage>} />
           <Route path="/ops/starstreak-community" element={<OpsPage><AdminOfficialCommunity /></OpsPage>} />
           <Route path="/ops/organisations" element={<OpsPage><AdminSponsorships /></OpsPage>} />
+
+          {/* Starstreak Business — a verified organisation's own dashboard */}
+          <Route path="/business" element={<BusinessRoute><BusinessHome /></BusinessRoute>} />
+          {[
+            ["overview", BusinessOverview], ["promotions", BusinessPromotions], ["analytics", BusinessAnalytics],
+            ["team", BusinessTeam], ["billing", BusinessBilling], ["settings", BusinessSettings],
+          ].map(([path, Page]) => (
+            <Route key={path} path={`/business/:orgId/${path}`}
+                   element={<BusinessRoute><BusinessLayout><Page /></BusinessLayout></BusinessRoute>} />
+          ))}
           <Route path="/ops/messages"    element={<OpsPage><AdminMessages /></OpsPage>} />
 
           {/* Deep links — public MainLayout */}

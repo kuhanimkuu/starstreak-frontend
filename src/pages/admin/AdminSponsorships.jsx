@@ -3,12 +3,24 @@ import { FiCheck, FiX, FiZap, FiPause, FiPlay, FiSquare } from "react-icons/fi";
 import { supabase } from "../../lib/supabase";
 import { timeAgo } from "../../app/lib/format";
 
-// Verified organisations (Sponsored communities) and Promotion — strategy v3
-// 16a/17. STRUCTURE: billing (Paystack) is integrated later, so approving
-// leaves an organisation "awaiting payment" unless you activate it directly
-// (pilots/testing), and promotions wait for payment unless activated here.
+// Organisation reviews (Starstreak team only) — strategy v3 16a/17.
+// Verification is automatic (work-email code, website match, KRA PIN format,
+// look-alike screen): clean applications approve themselves; only FLAGGED
+// ones need a person here. Billing (Paystack) is integrated later, so an
+// approved organisation waits for payment unless activated for a pilot.
+
+const FLAG_LABEL = {
+  email_not_at_website_domain: "Email isn't at the website's domain",
+  no_registration_number: "No registration number",
+  registration_not_kra_format: "Registration number isn't a KRA PIN",
+  resembles_protected_brand: "Looks like a protected brand",
+  resembles_existing_organisation: "Looks like an existing verified organisation",
+  website_not_reachable: "Website didn't respond",
+};
+const COLUMNS = "community_id, status, plan, legal_name, registration_number, contact_email, website, applied_at, review_note, flags, auto_approved, email_verified_at, website_ok, communities(name)";
 
 const STATUS_STYLE = {
+  pending_email: "bg-night-700 text-mist",
   pending_review: "bg-amber-500/15 text-amber-300",
   approved_unpaid: "bg-sky-500/15 text-sky-300",
   active: "bg-green-500/15 text-green-400",
@@ -38,7 +50,7 @@ export default function AdminSponsorships() {
 
   const load = useCallback(async () => {
     const [a, p] = await Promise.all([
-      supabase.from("community_sponsorships").select("*, communities(name)").order("applied_at", { ascending: false }),
+      supabase.from("community_sponsorships").select(COLUMNS).order("applied_at", { ascending: false }),
       supabase.from("promotions").select("*, communities(name)").order("created_at", { ascending: false }).limit(100),
     ]);
     if (a.error) return setError(a.error.message);
@@ -75,16 +87,18 @@ export default function AdminSponsorships() {
   return (
     <div className="max-w-5xl space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-star">Organisations & promotion</h1>
+        <h1 className="text-2xl font-bold text-star">Organisation reviews</h1>
         <p className="mt-1 text-sm text-mist">
-          Review verified-organisation applications and promotion requests. Billing isn't connected yet: approved organisations
-          wait for payment unless you activate them directly for a pilot.
+          Verification is automatic: organisations that pass every check are approved on their own. Only flagged applications
+          need you. Billing isn't connected yet, so approved organisations wait for payment unless you activate them for a pilot.
         </p>
       </div>
       {error && <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs text-red-400">{error}</p>}
 
       <section className="rounded-xl border border-line bg-night-850 p-6">
-        <h2 className="mb-3 text-sm font-semibold text-star">Applications ({apps.length})</h2>
+        <h2 className="mb-3 text-sm font-semibold text-star">
+          Applications ({apps.length}) · <span className="text-amber-300">{apps.filter((a) => a.status === "pending_review").length} need you</span>
+        </h2>
         {apps.length === 0 && <p className="text-sm text-dust">No applications yet.</p>}
         <ul className="divide-y divide-line">
           {apps.map((a) => (
@@ -93,7 +107,15 @@ export default function AdminSponsorships() {
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-sm font-medium text-star">{a.legal_name}</span>
                   <Pill value={a.status} />
+                  {a.auto_approved && <span className="text-xs text-green-400">approved automatically</span>}
                 </div>
+                {a.flags?.length > 0 && (
+                  <ul className="mt-1 flex flex-wrap gap-1">
+                    {a.flags.map((f) => (
+                      <li key={f} className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[11px] text-amber-300">{FLAG_LABEL[f] || f}</li>
+                    ))}
+                  </ul>
+                )}
                 <p className="mt-0.5 text-xs text-dust">
                   {a.communities?.name || "Community"} · {a.contact_email}
                   {a.registration_number && <> · Reg. {a.registration_number}</>}
