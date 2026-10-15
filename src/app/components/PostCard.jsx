@@ -15,6 +15,7 @@ import { compact, timeAgo, fullDate } from "../lib/format";
 import { hidePost, blockUser, recordView } from "../lib/api";
 import { feedAdapter } from "../lib/adapters";
 import { useAppSession } from "../AppSession";
+import { OfficialAvatar, OfficialBadge, OfficialCheck, OFFICIAL_CARD, OFFICIAL_STRIPE } from "../../components/Official";
 
 const TRUNCATE = 400; // characters before "Read more" (as in the app)
 
@@ -81,9 +82,13 @@ export default function PostCard({ post, detail = false, onRemoved, adapter = fe
   const disliked = !!myId && dislikes.includes(myId);
   const anonymous = !!post.is_anonymous;
   const mine = !!post.is_mine;
-  const username = !anonymous ? post.author_username : null;
+  // Posted as a community/Flash (or by the Starstreak team): show the space,
+  // never the admin who published it (as in the app).
+  const official = !!post.is_official;
+  const space = post.posted_as_kind && post.posted_as_name ? post.posted_as_name : null;
+  const username = !anonymous && !space ? post.author_username : null;
   // Anonymous posts always read "Anonymous" — even to their author (as in the app).
-  const name = anonymous ? "Anonymous" : post.author_name || "Starstreak user";
+  const name = anonymous ? "Anonymous" : space || post.author_name || "Starstreak user";
 
   // Count an impression once the post is mostly on screen for a moment.
   useEffect(() => {
@@ -192,7 +197,9 @@ export default function PostCard({ post, detail = false, onRemoved, adapter = fe
     }
   }
 
-  const authorLink = username ? `/profile/${username}` : null;
+  const authorLink = space
+    ? (post.posted_as_kind === "flash" ? `/flashes/${post.posted_as_id}` : `/communities/${post.posted_as_id}`)
+    : username ? `/profile/${username}` : null;
   const open = () => !detail && navigate(adapter.path(post));
 
   const content = post.content || "";
@@ -201,15 +208,20 @@ export default function PostCard({ post, detail = false, onRemoved, adapter = fe
   return (
     <article ref={cardRef} onClick={open}
              className={`relative overflow-hidden rounded-3xl bg-night-800 shadow-[0_4px_15px_rgba(0,0,0,0.3)] transition-colors ${
-               detail ? "" : "cursor-pointer hover:bg-night-700/80"}`}>
-      {/* Flare stripe down the left edge, as in the app. */}
-      <span className="absolute inset-y-0 left-0 w-[3px] bg-flare-deep" aria-hidden />
+               official ? OFFICIAL_CARD : ""} ${detail ? "" : "cursor-pointer hover:bg-night-700/80"}`}>
+      {/* Flare stripe down the left edge, as in the app (gold when official). */}
+      <span className={`absolute inset-y-0 left-0 w-[3px] ${official ? OFFICIAL_STRIPE : "bg-flare-deep"}`} aria-hidden />
 
       {/* Header: avatar · name · verified · more / @handle · time */}
       <header className="flex items-center gap-2.5 py-4 pl-5 pr-2">
-        {authorLink ? (
+        {official ? (
           <Link to={authorLink} onClick={(e) => e.stopPropagation()} className="shrink-0">
-            <Avatar glow verified={post.is_verified} size="glow" src={post.author_avatar_url} name={name} />
+            <OfficialAvatar />
+          </Link>
+        ) : authorLink ? (
+          <Link to={authorLink} onClick={(e) => e.stopPropagation()} className="shrink-0">
+            <Avatar glow verified={post.is_verified && !space} size="glow"
+                    src={space ? post.posted_as_avatar_url : post.author_avatar_url} name={name} />
           </Link>
         ) : (
           <Avatar glow size="glow" anonymous={anonymous} src={post.author_avatar_url} name={name} />
@@ -223,10 +235,12 @@ export default function PostCard({ post, detail = false, onRemoved, adapter = fe
             ) : (
               <span className="truncate text-[15px] font-bold text-star">{name}</span>
             )}
-            {post.is_verified && !anonymous && <MdVerified className="shrink-0 text-[14px] text-sky-500" aria-label="Verified" />}
+            {official ? <OfficialCheck className="text-[15px]" />
+              : post.is_verified && !anonymous && !space && <MdVerified className="shrink-0 text-[14px] text-sky-500" aria-label="Verified" />}
             {anonymous && mine && <span className="ml-1 shrink-0 rounded-full bg-night-700 px-2 py-0.5 text-[11px] text-mist">You</span>}
           </div>
           <div className="mt-0.5 flex items-center gap-1 text-xs text-mist">
+            {official && <OfficialBadge />}
             {username && <><span className="truncate">@{username}</span><span>·</span></>}
             <time dateTime={post.created_at} title={fullDate(post.created_at)} className="shrink-0">
               {detail ? fullDate(post.created_at) : timeAgo(post.created_at)}
@@ -242,7 +256,7 @@ export default function PostCard({ post, detail = false, onRemoved, adapter = fe
         </div>
       </header>
 
-      {showCommunity && post.community_name && (
+      {showCommunity && post.community_name && !space && (
         <div className="px-5 pb-2.5">
           <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-flare/20 bg-flare/10 px-2.5 py-1 text-xs font-semibold text-flare">
             <FiUsers className="shrink-0 text-[13px]" /> <span className="truncate">{post.community_name}</span>

@@ -3,12 +3,13 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import {
   FiHome, FiUsers, FiLayers, FiFlag, FiTrendingUp,
-  FiShield, FiSettings, FiLogOut, FiMenu, FiX, FiGlobe, FiMail,
+  FiShield, FiSettings, FiLogOut, FiMenu, FiX, FiGlobe, FiMail, FiVolume2,
 } from "react-icons/fi";
 import FlarelyMark from "../components/FlarelyMark";
 
 const NAV = [
   { label: "Dashboard", path: "/ops", icon: FiHome },
+  { label: "Post as Starstreak", path: "/ops/publish", icon: FiVolume2 },
   { label: "Users", path: "/ops/users", icon: FiUsers },
   { label: "Communities", path: "/ops/communities", icon: FiLayers },
   { label: "Messages", path: "/ops/messages", icon: FiMail },

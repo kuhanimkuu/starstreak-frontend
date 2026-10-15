@@ -6,6 +6,7 @@ import RichText from "../app/components/RichText";
 import PostMedia from "../app/components/PostMedia";
 import { parseMedia, safeUrl } from "../app/lib/media";
 import { compact, timeAgo, fullDate } from "../app/lib/format";
+import { OfficialAvatar, OfficialBadge, OfficialCheck, OFFICIAL_CARD, OFFICIAL_STRIPE } from "./Official";
 
 // Read-only previews for shared links, drawn like the app's post and
 // community cards (the web app's PostCard needs a signed-in session).
@@ -24,6 +25,7 @@ function Stat({ icon: Icon, count, tone = "" }) {
 export function PostPreview({ post }) {
   const media = useMemo(() => parseMedia(post.media_urls), [post.media_urls]);
   const anonymous = !!post.is_anonymous;
+  const official = !!post.is_official;
   const name = anonymous ? "Anonymous" : post.author_name || "Starstreak user";
   const username = anonymous ? null : post.author_username;
   const content = post.content || "";
@@ -32,17 +34,19 @@ export function PostPreview({ post }) {
   const totalVotes = post.poll?.totalVotes || options.reduce((n, o) => n + (o.votes || 0), 0);
 
   return (
-    <article className="relative w-full overflow-hidden rounded-3xl bg-night-800 text-left shadow-[0_4px_15px_rgba(0,0,0,0.3)]">
-      <span className="absolute inset-y-0 left-0 w-[3px] bg-flare-deep" aria-hidden />
+    <article className={`relative w-full overflow-hidden rounded-3xl bg-night-800 text-left shadow-[0_4px_15px_rgba(0,0,0,0.3)] ${official ? OFFICIAL_CARD : ""}`}>
+      <span className={`absolute inset-y-0 left-0 w-[3px] ${official ? OFFICIAL_STRIPE : "bg-flare-deep"}`} aria-hidden />
 
       <header className="flex items-center gap-2.5 py-4 pl-5 pr-4">
-        <Avatar glow verified={post.is_verified} size="glow" anonymous={anonymous} src={post.author_avatar_url} name={name} />
+        {official ? <OfficialAvatar /> : <Avatar glow verified={post.is_verified} size="glow" anonymous={anonymous} src={post.author_avatar_url} name={name} />}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1">
             <span className="truncate text-[15px] font-bold text-star">{name}</span>
-            {post.is_verified && !anonymous && <MdVerified className="shrink-0 text-[14px] text-sky-500" aria-label="Verified" />}
+            {official ? <OfficialCheck className="text-[15px]" />
+              : post.is_verified && !anonymous && <MdVerified className="shrink-0 text-[14px] text-sky-500" aria-label="Verified" />}
           </div>
           <div className="mt-0.5 flex items-center gap-1 text-xs text-mist">
+            {official && <OfficialBadge />}
             {username && <><span className="truncate">@{username}</span><span>·</span></>}
             <time dateTime={post.created_at} title={fullDate(post.created_at)} className="shrink-0">
               {timeAgo(post.created_at)}
@@ -51,7 +55,7 @@ export function PostPreview({ post }) {
         </div>
       </header>
 
-      {post.community_name && (
+      {post.community_name && !post.posted_as_kind && (
         <div className="px-5 pb-2.5">
           <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-flare/20 bg-flare/10 px-2.5 py-1 text-xs font-semibold text-flare">
             <FiUsers className="shrink-0 text-[13px]" /> <span className="truncate">{post.community_name}</span>
