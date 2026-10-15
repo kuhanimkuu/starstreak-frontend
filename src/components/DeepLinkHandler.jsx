@@ -13,6 +13,7 @@ const COPY = {
   community: { pose: "wave", title: "You’re invited to a community", body: "Open Starstreak to see what’s happening and join in." },
   profile: { pose: "wave", title: "Check out this profile", body: "Open Starstreak to see their posts and connect." },
   invite: { pose: "celebrate", title: "You’ve been invited!", body: "Someone wants you in their group on Starstreak." },
+  communityInvite: { pose: "celebrate", title: "You’re invited to join a community", body: "Open Starstreak to see it and join." },
   chat: { pose: "chat", title: "Continue the conversation", body: "Your chat is waiting in the Starstreak app." },
 };
 const FALLBACK = { pose: "main", title: "Open in Starstreak", body: "This link opens in the Starstreak app." };
@@ -21,7 +22,8 @@ function isMobileUA() {
   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
-export default function DeepLinkHandler({ type }) {
+// `preview` (optional): the shared post or community, drawn like the app.
+export default function DeepLinkHandler({ type, preview = null, title = null }) {
   const location = useLocation();
   const appUrl = `${APP_SCHEME}${location.pathname}`;
   const [mobile] = useState(isMobileUA);
@@ -49,9 +51,19 @@ export default function DeepLinkHandler({ type }) {
       <Starfield density={55} />
       <div className="glow-flare absolute -top-40 left-1/2 h-[480px] w-[780px] -translate-x-1/2 opacity-60" />
       <div className="container-ss relative flex max-w-xl flex-col items-center text-center">
-        <Mascot pose={copy.pose} className="w-36" />
-        <h1 className="h-display mt-6 text-4xl text-star md:text-5xl">{copy.title}</h1>
-        <p className="mt-4 text-lg text-mist">{copy.body}</p>
+        {preview ? (
+          <>
+            <h1 className="h-display text-3xl text-star md:text-4xl">{title || copy.title}</h1>
+            <div className="mt-8 w-full">{preview}</div>
+            <p className="mt-6 text-mist">{copy.body}</p>
+          </>
+        ) : (
+          <>
+            <Mascot pose={copy.pose} className="w-36" />
+            <h1 className="h-display mt-6 text-4xl text-star md:text-5xl">{copy.title}</h1>
+            <p className="mt-4 text-lg text-mist">{copy.body}</p>
+          </>
+        )}
 
         {trying ? (
           <div className="mt-10 flex items-center gap-3 text-mist">

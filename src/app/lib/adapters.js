@@ -49,11 +49,23 @@ function authorFields(me, anonymous) {
     : { author_name: me?.display_name || "Starstreak user", author_avatar_url: me?.avatar_url || null };
 }
 
+// X-style share link: <origin>/<username>/<kind>/<shortId>. The server picks
+// the username ('anonymous' for anonymous posts). Falls back if the lookup fails.
+async function shortShareUrl(kind, id, fallback) {
+  try {
+    const { data, error } = await supabase.rpc("post_share_path", { p_kind: kind, p_id: id });
+    if (!error && typeof data === "string" && data) return `${window.location.origin}/${data}`;
+  } catch {
+    /* fall back */
+  }
+  return fallback;
+}
+
 // ── Feed ─────────────────────────────────────────────────────────────────────
 export const feedAdapter = {
   kind: "feed",
   path: (p) => `/post/${p.id}`,
-  shareUrl: (p) => `${window.location.origin}/p/${p.id}`,
+  shareUrl: (p) => shortShareUrl("post", p.id, `${window.location.origin}/p/${p.id}`),
   toPost: (row) => row,
   like: (p) => toggleLike(p.id),
   dislike: (p) => toggleDislike(p.id),
@@ -90,7 +102,8 @@ export function communityAdapter(community) {
   return {
     kind: "community",
     path: (p) => `/communities/${p.community_id || cid}/post/${p.id}`,
-    shareUrl: (p) => `${window.location.origin}/communities/${p.community_id || cid}/post/${p.id}`,
+    shareUrl: (p) =>
+      shortShareUrl("community-post", p.id, `${window.location.origin}/communities/${p.community_id || cid}/post/${p.id}`),
     toPost: communityRowToPost,
     like: (p, myId) => rpc("discussion_toggle_like", { p_post_id: p.id, p_user_id: myId }, "Couldn't update the like"),
     dislike: (p, myId) => rpc("discussion_toggle_dislike", { p_post_id: p.id, p_user_id: myId }, "Couldn't update the dislike"),
@@ -187,7 +200,8 @@ export function flashAdapter(flash) {
   return {
     kind: "flash",
     path: (p) => `/flashes/${p.community_id || fid}/post/${p.id}`,
-    shareUrl: (p) => `${window.location.origin}/flashes/${p.community_id || fid}/post/${p.id}`,
+    shareUrl: (p) =>
+      shortShareUrl("flash-post", p.id, `${window.location.origin}/flashes/${p.community_id || fid}/post/${p.id}`),
     toPost,
     like: (p, myId) => rpc("toggle_flash_discussion_like", { p_post_id: p.id, p_user_id: myId }, "Couldn't update the like"),
     dislike: (p, myId) => rpc("toggle_flash_discussion_dislike", { p_post_id: p.id, p_user_id: myId }, "Couldn't update the dislike"),

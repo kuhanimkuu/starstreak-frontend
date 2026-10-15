@@ -28,6 +28,9 @@ import Download from "./pages/Download";
 // Deep Link pages
 import PostLink from "./pages/deeplinks/PostLink";
 import CommunityLink from "./pages/deeplinks/CommunityLink";
+import ShortPostLink from "./pages/deeplinks/ShortPostLink";
+import ShortSpaceLink from "./pages/deeplinks/ShortSpaceLink";
+import DeepLinkHandler from "./components/DeepLinkHandler";
 import ProfileLink from "./pages/deeplinks/ProfileLink";
 import InviteLink from "./pages/deeplinks/InviteLink";
 import ChatLink from "./pages/deeplinks/ChatLink";
@@ -160,6 +163,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/u/:username"      element={<MainLayout><ProfileLink /></MainLayout>} />
           <Route path="/invite/:code"     element={<MainLayout><InviteLink /></MainLayout>} />
           <Route path="/chat/:id"         element={<MainLayout><ChatLink /></MainLayout>} />
+          <Route path="/join/:code"                       element={<MainLayout><DeepLinkHandler type="communityInvite" /></MainLayout>} />
+          <Route path="/community/:shortId"                element={<MainLayout><ShortSpaceLink kind="community" /></MainLayout>} />
+          <Route path="/flash/:shortId"                    element={<MainLayout><ShortSpaceLink kind="flash" /></MainLayout>} />
+          <Route path="/:username/post/:shortId"           element={<MainLayout><ShortPostLink kind="post" /></MainLayout>} />
+          <Route path="/:username/community-post/:shortId" element={<MainLayout><ShortPostLink kind="community-post" /></MainLayout>} />
+          <Route path="/:username/flash-post/:shortId"     element={<MainLayout><ShortPostLink kind="flash-post" /></MainLayout>} />
 
           {/* Public pages — MainLayout */}
           <Route path="/"             element={<MainLayout><Home /></MainLayout>} />

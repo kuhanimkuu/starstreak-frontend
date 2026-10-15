@@ -119,7 +119,7 @@ export default function PostCard({ post, detail = false, onRemoved, adapter = fe
   }
 
   async function share() {
-    const url = adapter.shareUrl(post);
+    const url = await adapter.shareUrl(post);
     try {
       if (navigator.share) await navigator.share({ title: "Starstreak", url });
       else {
@@ -128,8 +128,12 @@ export default function PostCard({ post, detail = false, onRemoved, adapter = fe
       }
       setShares((s) => s + 1);
       adapter.share?.(post)?.catch(() => {});
-    } catch {
-      /* share sheet dismissed */
+    } catch (e) {
+      // Some browsers refuse the share sheet after the link lookup; copy instead.
+      if (e?.name === "NotAllowedError") {
+        navigator.clipboard.writeText(url).then(() => notify("Link copied")).catch(() => {});
+      }
+      /* otherwise the share sheet was dismissed */
     }
   }
 
@@ -139,7 +143,7 @@ export default function PostCard({ post, detail = false, onRemoved, adapter = fe
       icon: FiBookmark, label: saved ? "Remove from saved" : "Save post",
       onClick: () => toggleSaved(post.id).then((on) => notify(on ? "Saved" : "Removed from saved")).catch((e) => notify(e.message, "error")),
     }] : []),
-    { icon: FiLink, label: "Copy link", onClick: () => navigator.clipboard.writeText(adapter.shareUrl(post)).then(() => notify("Link copied")) },
+    { icon: FiLink, label: "Copy link", onClick: () => Promise.resolve(adapter.shareUrl(post)).then((url) => navigator.clipboard.writeText(url)).then(() => notify("Link copied")).catch(() => notify("Couldn't copy the link", "error")) },
   ];
   if (mine) {
     menuItems.push({
