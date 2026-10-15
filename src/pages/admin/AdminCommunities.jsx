@@ -111,6 +111,7 @@ export default function AdminCommunities() {
         .select("id, name, description, type, member_count, post_count, created_at, category, is_suspended, verification_status", { count: "exact" })
         .in("id", ids)
         .neq("is_archived", true)
+        .not("is_flash", "is", true)
         .order("created_at", { ascending: false })
         .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
@@ -124,7 +125,8 @@ export default function AdminCommunities() {
     let q = supabase
       .from("communities")
       .select("id, name, description, type, member_count, post_count, created_at, category, is_suspended, verification_status", { count: "exact" })
-      .neq("is_archived", true);
+      .neq("is_archived", true)
+      .not("is_flash", "is", true);
 
     if (filter === "suspended") {
       q = q.eq("is_suspended", true);
@@ -255,16 +257,16 @@ export default function AdminCommunities() {
       verified_at: new Date().toISOString(),
       verified_by: user?.id ?? null,
     };
-    const { error } = await supabase.from("communities").update(change).eq("id", id);
-    if (error) return window.alert(`Couldn't verify: ${error.message}`);
+    const { data: saved, error } = await supabase.from("communities").update(change).eq("id", id).select("id");
+    if (error || !saved?.length) return window.alert(`Couldn't verify: ${error?.message || "nothing was updated"}`);
     setCommunities(prev => prev.map(c => c.id === id ? { ...c, ...change } : c));
   }
 
   async function unverify(id) {
     if (!window.confirm("Remove this community's blue check?")) return;
     const change = { verification_status: "pending", verification_tier: "unverified", verified_at: null, verified_by: null };
-    const { error } = await supabase.from("communities").update(change).eq("id", id);
-    if (error) return window.alert(`Couldn't remove verification: ${error.message}`);
+    const { data: saved, error } = await supabase.from("communities").update(change).eq("id", id).select("id");
+    if (error || !saved?.length) return window.alert(`Couldn't remove verification: ${error?.message || "nothing was updated"}`);
     setCommunities(prev => prev.map(c => c.id === id ? { ...c, ...change } : c));
   }
 
@@ -272,12 +274,16 @@ export default function AdminCommunities() {
     if (!suspendTarget) return;
     const table = tab === "normal" ? "communities" : "flash_communities";
     const { data: { user } } = await supabase.auth.getUser();
-    await supabase.from(table).update({
+    const { data: saved, error } = await supabase.from(table).update({
       is_suspended: true,
       suspended_at: new Date().toISOString(),
       suspension_reason: suspendReason || null,
       suspended_by: user?.email || null,
-    }).eq("id", suspendTarget.id);
+    }).eq("id", suspendTarget.id).select("id");
+    if (error || !saved?.length) {
+      window.alert(`Couldn't suspend: ${error?.message || "nothing was updated"}`);
+      return;
+    }
     setCommunities(prev => prev.map(c => c.id === suspendTarget.id ? { ...c, is_suspended: true } : c));
     setSuspendTarget(null);
     setSuspendReason("");
@@ -285,12 +291,16 @@ export default function AdminCommunities() {
 
   async function unsuspend(id) {
     const table = tab === "normal" ? "communities" : "flash_communities";
-    await supabase.from(table).update({
+    const { data: saved, error } = await supabase.from(table).update({
       is_suspended: false,
       suspended_at: null,
       suspension_reason: null,
       suspended_by: null,
-    }).eq("id", id);
+    }).eq("id", id).select("id");
+    if (error || !saved?.length) {
+      window.alert(`Couldn't unsuspend: ${error?.message || "nothing was updated"}`);
+      return;
+    }
     setCommunities(prev => prev.map(c => c.id === id ? { ...c, is_suspended: false } : c));
   }
 
