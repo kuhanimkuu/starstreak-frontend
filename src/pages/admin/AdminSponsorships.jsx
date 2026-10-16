@@ -4,7 +4,7 @@ import { supabase } from "../../lib/supabase";
 import { timeAgo } from "../../app/lib/format";
 
 // Organisation reviews (Starstreak team only) — strategy v3 16a/17.
-// Verification is automatic (work-email code, website match, KRA PIN format,
+// Verification is automatic (work-email code, website match,
 // look-alike screen): clean applications approve themselves; only FLAGGED
 // ones need a person here. Billing (Paystack) is integrated later, so an
 // approved organisation waits for payment unless activated for a pilot.
