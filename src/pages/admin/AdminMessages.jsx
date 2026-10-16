@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
+import ReplyBox from "./ReplyBox";
 import {
   FiMail, FiSearch, FiX, FiChevronRight,
   FiAlertCircle, FiCheckCircle, FiClock, FiArchive, FiDatabase,
@@ -308,15 +309,17 @@ function MessagePanel({ msg, onClose, onUpdate }) {
             </button>
           </div>
 
-          {/* Reply via email shortcut */}
-          <div className="bg-night-800 border border-night-600 rounded-xl p-4">
-            <p className="text-mist text-xs mb-2">Reply to this message</p>
-            <p className="text-dust text-xs mb-3">Opens your email client. Remember to mark the message as resolved when done.</p>
-            <a href={`mailto:${msg.email}?subject=Re: ${encodeURIComponent(msg.subject || "Your message to Starstreak")}&body=%0A%0A----%0AOriginal message from ${encodeURIComponent(msg.name)}:%0A${encodeURIComponent(msg.message)}`}
-              className="flex items-center justify-center gap-2 w-full py-2 text-sm bg-flare-deep hover:bg-flare text-star rounded-lg transition-colors">
-              <FiMail /> Reply via email
-            </a>
-          </div>
+          {/* Reply from hello@starstreak.org */}
+          <ReplyBox
+            kind="support"
+            id={msg.id}
+            to={msg.email}
+            defaultSubject={`Re: ${msg.subject || "Your message to Starstreak"}`}
+            greeting={`Hi ${(msg.name || "").split(" ")[0] || "there"},\n\n\n\nThe Starstreak team`}
+            statusAfter="resolved"
+            statusLabel="Resolved"
+            onSent={(s) => handleStatusChange(s)}
+          />
 
           {/* Internal notes */}
           <div>
@@ -558,14 +561,17 @@ function DataRequestPanel({ req, onClose, onUpdate }) {
             </button>
           </div>
 
-          {/* Email reply */}
-          <div className="bg-night-800 border border-night-600 rounded-xl p-4">
-            <p className="text-mist text-xs mb-3">Reply to requester</p>
-            <a href={`mailto:${req.email}?subject=Re: Your ${DR_TYPE_LABELS[req.request_type]} Request&body=Dear ${encodeURIComponent(req.name)},%0A%0A`}
-              className="flex items-center justify-center gap-2 w-full py-2 text-sm bg-flare-deep hover:bg-flare text-star rounded-lg transition-colors">
-              <FiMail /> Reply via email
-            </a>
-          </div>
+          {/* Reply from hello@starstreak.org */}
+          <ReplyBox
+            kind="data_request"
+            id={req.id}
+            to={req.email}
+            defaultSubject={`Your ${(DR_TYPE_LABELS[req.request_type] || "data").toLowerCase()} request`}
+            greeting={`Hi ${(req.name || "").split(" ")[0] || "there"},\n\n\n\nThe Starstreak team`}
+            statusAfter="processing"
+            statusLabel="Processing"
+            onSent={(s) => handleStatus(s)}
+          />
 
           {/* Internal notes */}
           <div>
