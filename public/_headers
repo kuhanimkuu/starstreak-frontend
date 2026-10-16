@@ -14,6 +14,19 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 
+# Private areas: never listed by search engines, and links clicked inside
+# them don't tell the other site where the visitor came from.
+/ops
+  X-Robots-Tag: noindex, nofollow
+  Referrer-Policy: no-referrer
+/ops/*
+  X-Robots-Tag: noindex, nofollow
+  Referrer-Policy: no-referrer
+/business
+  X-Robots-Tag: noindex, nofollow
+/business/*
+  X-Robots-Tag: noindex, nofollow
+
 # Built files have content hashes in their names, so they can be cached for good.
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
