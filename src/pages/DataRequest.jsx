@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { FaFileDownload, FaTrashAlt, FaLock, FaUserShield, FaEdit, FaBan } from "react-icons/fa";
 import { PageHero } from "../components/ui/Section";
@@ -43,7 +43,14 @@ const REQUEST_TYPES = [
 const EMPTY = { name: "", email: "", details: "" };
 
 export default function DataRequest() {
-  const [selected, setSelected] = useState(null);
+  // ?type=export | deletion | correction | restriction picks a card up front
+  // (Settings links here with one).
+  const [params] = useSearchParams();
+  const typeFromLink = params.get("type");
+  const [selected, setSelected] = useState(
+    REQUEST_TYPES.some((r) => r.value === typeFromLink) ? typeFromLink : null,
+  );
+  const typesRef = useRef(null);
   const [form, setForm] = useState(EMPTY);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -56,7 +63,8 @@ export default function DataRequest() {
   async function handleSubmit(e) {
     e.preventDefault();
     if (!selected) {
-      setError("Please select a request type.");
+      setError("Choose what you'd like to do at the top of the page first.");
+      typesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
     if (!form.name.trim() || !form.email.trim()) {
@@ -143,7 +151,7 @@ export default function DataRequest() {
 
       <section className="py-16 md:py-20">
         <div className="container-ss max-w-3xl space-y-10">
-          <div>
+          <div ref={typesRef} className="scroll-mt-24">
             <h2 className="text-xl font-bold text-star">What would you like to do?</h2>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               {REQUEST_TYPES.map(({ value, label, icon: Icon, tone, ring, desc }) => (
@@ -228,11 +236,17 @@ export default function DataRequest() {
               </div>
             )}
 
-            {error && <p className="text-sm text-red-400">{error}</p>}
+            <p className="text-sm text-mist">
+              {selected
+                ? <>Request: <strong className="text-star">{REQUEST_TYPES.find((r) => r.value === selected)?.label}</strong></>
+                : "Choose a request type at the top of the page."}
+            </p>
+
+            {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
 
             <button
               type="submit"
-              disabled={loading || !selected}
+              disabled={loading}
               className={`w-full disabled:cursor-not-allowed disabled:opacity-50 ${
                 selected === "deletion"
                   ? "rounded-full bg-red-600 px-7 py-3.5 font-semibold text-white transition-colors hover:bg-red-500"

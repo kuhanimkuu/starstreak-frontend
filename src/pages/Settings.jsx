@@ -134,7 +134,7 @@ export default function Settings() {
       {/* Privacy section */}
       <Section title="Privacy & Data" subtitle="Control how your data is used." icon={<FiShield />}>
         <Row label="Download my data">
-          <Link to="/data-request" className="flex items-center gap-1.5 text-sm text-accent hover:text-gold font-medium">
+          <Link to="/data-request?type=export" className="flex items-center gap-1.5 text-sm text-accent hover:text-gold font-medium">
             Request export <FiExternalLink className="text-xs" />
           </Link>
         </Row>
