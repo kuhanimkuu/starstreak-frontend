@@ -2,7 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { FiSend } from "react-icons/fi";
 import { supabase } from "../../lib/supabase";
 
-// Reply by email from hello@starstreak.org (edge function ops-send-email).
+// Reply by email from no-reply@starstreak.org (edge function ops-send-email);
+// replies aren't read, the email points people to the contact form.
 // The recipient is the address on the message/request, chosen by the server;
 // every email sent is listed underneath from outbound_emails.
 
@@ -38,7 +39,7 @@ export default function ReplyBox({ kind, id, to, defaultSubject, greeting, statu
   async function send() {
     if (busy) return;
     if (!subject.trim() || !body.trim()) return setError("Write a subject and a message.");
-    if (!window.confirm(`Send this email to ${to} from hello@starstreak.org?`)) return;
+    if (!window.confirm(`Send this email to ${to}?`)) return;
     setBusy(true);
     setError("");
     setNotice("");
@@ -59,7 +60,7 @@ export default function ReplyBox({ kind, id, to, defaultSubject, greeting, statu
     <div className="bg-night-800 border border-night-600 rounded-xl p-4 space-y-3">
       <div>
         <p className="text-mist text-xs font-medium">Reply by email</p>
-        <p className="text-dust text-xs mt-0.5">From hello@starstreak.org to {to}. Their reply comes back to hello@.</p>
+        <p className="text-dust text-xs mt-0.5">To {to}, from no-reply@starstreak.org. They can't reply; the email links them to the contact form, which lands back here.</p>
       </div>
       <label className="block text-dust text-xs">Subject
         <input value={subject} onChange={(e) => setSubject(e.target.value)} maxLength={200} className={`mt-1 ${field}`} />

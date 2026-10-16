@@ -309,7 +309,7 @@ function MessagePanel({ msg, onClose, onUpdate }) {
             </button>
           </div>
 
-          {/* Reply from hello@starstreak.org */}
+          {/* Reply by email (no-reply@starstreak.org) */}
           <ReplyBox
             kind="support"
             id={msg.id}
@@ -561,7 +561,7 @@ function DataRequestPanel({ req, onClose, onUpdate }) {
             </button>
           </div>
 
-          {/* Reply from hello@starstreak.org */}
+          {/* Reply by email (no-reply@starstreak.org) */}
           <ReplyBox
             kind="data_request"
             id={req.id}
