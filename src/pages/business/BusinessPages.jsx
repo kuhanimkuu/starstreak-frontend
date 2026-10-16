@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FiZap, FiUsers, FiTrendingUp, FiEdit3, FiPause, FiPlay, FiSquare, FiPlus, FiExternalLink } from "react-icons/fi";
+import { FiZap, FiUsers, FiTrendingUp, FiEdit3, FiPause, FiPlay, FiSquare, FiPlus, FiExternalLink, FiDownload } from "react-icons/fi";
 import { supabase } from "../../lib/supabase";
-import { useOrg, STATUS_TEXT } from "../../lib/business";
+import { useOrg, STATUS_TEXT, money, downloadCsv } from "../../lib/business";
+import ActivityList from "../../components/ActivityList";
 import { timeAgo } from "../../app/lib/format";
 
 // Starstreak Business pages. Data: org_* RPCs (access checked on the server).
 // Billing (Paystack) is integrated later: promotions wait for payment and the
 // Billing page is a placeholder.
 
-const kes = (minor, currency = "KES") => `${currency} ${(Number(minor || 0) / 100).toLocaleString()}`;
 const num = (n) => Number(n || 0).toLocaleString();
 
 function Page({ title, subtitle, children, action }) {
@@ -41,6 +41,16 @@ function Stat({ icon: Icon, label, value, hint }) {
   );
 }
 
+function ExportButton({ onClick, label = "Download CSV" }) {
+  return (
+    <button onClick={onClick} className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-2 text-sm text-mist hover:border-flare hover:text-star">
+      <FiDownload aria-hidden="true" /> {label}
+    </button>
+  );
+}
+
+const day = (d) => new Date(`${d}T00:00:00`).toLocaleDateString(undefined, { day: "numeric", month: "short" });
+
 function ErrorLine({ error }) {
   return error ? <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs text-red-400">{error}</p> : null;
 }
@@ -68,7 +78,7 @@ export function BusinessOverview() {
         <Stat icon={FiUsers} label="Members" value={num(overview.members)} hint={`+${num(overview.joined_7d)} this week`} />
         <Stat icon={FiTrendingUp} label="New members, 30 days" value={num(overview.joined_30d)} />
         <Stat icon={FiEdit3} label="Posts, 30 days" value={num(overview.posts_30d)} />
-        <Stat icon={FiZap} label="Active promotions" value={num(overview.promotions_active)} hint={`${kes(overview.spent_minor, o.currency)} spent`} />
+        <Stat icon={FiZap} label="Active promotions" value={num(overview.promotions_active)} hint={`${money(overview.spent_minor, o.currency)} spent`} />
       </div>
       <Card>
         <h2 className="text-sm font-semibold">Live Flash</h2>
@@ -91,7 +101,8 @@ function NewPromotion({ onDone }) {
   const [posts, setPosts] = useState([]);
   const [target, setTarget] = useState(overview.live_flash ? `flash:${overview.live_flash.id}` : "");
   const [budget, setBudget] = useState("1000");
-  const [regions, setRegions] = useState("KE");
+  const [regions, setRegions] = useState("");
+  const currency = overview.organisation.currency || "KES";
   const [interests, setInterests] = useState("");
   const [lookalikes, setLookalikes] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -109,7 +120,8 @@ function NewPromotion({ onDone }) {
     const [kind, id] = target.split(":");
     const kesBudget = Number(budget);
     if (!kind || !id) return setError("Choose what to promote.");
-    if (!(kesBudget > 0)) return setError("Enter a budget.");
+    if (!(kesBudget > 0)) return setError("Enter a budget above zero.");
+    if (kesBudget > 100000000) return setError("That budget is too large. Contact us for bigger campaigns.");
     setBusy(true);
     setError("");
     const { error: e } = await supabase.rpc("create_promotion", {
@@ -134,11 +146,11 @@ function NewPromotion({ onDone }) {
         </select>
       </label>
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block text-xs text-dust">Budget (KES)
+        <label className="block text-xs text-dust">Budget ({currency})
           <input value={budget} onChange={(e) => setBudget(e.target.value)} inputMode="numeric" className={input} />
         </label>
-        <label className="block text-xs text-dust">Regions (country codes, e.g. KE, UG)
-          <input value={regions} onChange={(e) => setRegions(e.target.value)} className={input} />
+        <label className="block text-xs text-dust">Countries (optional; blank = everywhere)
+          <input value={regions} onChange={(e) => setRegions(e.target.value)} placeholder="e.g. KE, NG, GB" className={input} />
         </label>
       </div>
       <label className="block text-xs text-dust">Interests (optional, e.g. football, music)
@@ -160,6 +172,7 @@ export function BusinessPromotions() {
   const [rows, setRows] = useState(null);
   const [error, setError] = useState("");
   const [creating, setCreating] = useState(false);
+  const [changing, setChanging] = useState(null);
   const sponsored = ["active", "grace"].includes(overview.organisation.status);
 
   const load = useCallback(async () => {
@@ -174,15 +187,39 @@ export function BusinessPromotions() {
   }, [load]);
 
   async function setStatus(p, status) {
+    if (changing) return;
+    setChanging(p.id);
+    setError("");
     const { error: e } = await supabase.rpc("org_set_promotion_status", { p_id: p.id, p_status: status });
+    setChanging(null);
     if (e) setError(e.message);
     else load();
   }
 
+  function exportCsv() {
+    downloadCsv(`${overview.organisation.legal_name}-promotions.csv`, [
+      ["Promoting", (p) => `${p.kind === "flash" ? "Flash" : "Post"}: ${p.target_name || ""}`],
+      ["Status", (p) => p.status.replace(/_/g, " ")],
+      ["Currency", (p) => p.currency],
+      ["Budget", (p) => (Number(p.budget_minor) / 100).toFixed(2)],
+      ["Spent", (p) => (Number(p.spent_minor) / 100).toFixed(2)],
+      ["Shown", (p) => p.shown_count],
+      ["Joined", (p) => p.joins_count],
+      ["Hid it", (p) => p.hides_count],
+      ["Countries", (p) => (p.regions || []).join(" ")],
+      ["Created", (p) => p.created_at],
+      ["Ends", (p) => p.ends_at],
+    ], rows || []);
+  }
+
   return (
     <Page title="Promotions" subtitle="Reach people outside your community, paid per result."
-          action={isAdmin && sponsored && !creating && (
-            <button onClick={() => setCreating(true)} className="btn-flare !px-4 !py-2 text-sm"><FiPlus /> New promotion</button>)}>
+          action={
+            <div className="flex flex-wrap gap-2">
+              {rows?.length > 0 && <ExportButton onClick={exportCsv} />}
+              {isAdmin && sponsored && !creating && (
+                <button onClick={() => setCreating(true)} className="btn-flare !px-4 !py-2 text-sm"><FiPlus /> New promotion</button>)}
+            </div>}>
       {!sponsored && (
         <Card className="text-sm text-mist">Promotions open once your plan is active. Status: {STATUS_TEXT[overview.organisation.status]}.</Card>
       )}
@@ -201,7 +238,7 @@ export function BusinessPromotions() {
                     <span className={`rounded-full px-2 py-0.5 text-xs ${PROMO_STYLE[p.status] || ""}`}>{p.status.replace(/_/g, " ")}</span>
                   </div>
                   <p className="mt-0.5 text-xs text-dust">
-                    {kes(p.spent_minor, p.currency)} of {kes(p.budget_minor, p.currency)}
+                    {money(p.spent_minor, p.currency)} of {money(p.budget_minor, p.currency)}
                     {p.regions?.length > 0 && <> · {p.regions.join(", ")}</>}
                     {p.lookalikes && <> · similar taste</>} · until {new Date(p.ends_at).toLocaleString()}
                   </p>
@@ -209,10 +246,10 @@ export function BusinessPromotions() {
                 </div>
                 {isAdmin && (
                   <div className="flex items-center gap-1">
-                    {p.status === "active" && <button title="Pause" onClick={() => setStatus(p, "paused")} className="grid h-8 w-8 place-items-center rounded-lg text-mist hover:bg-night-700"><FiPause /></button>}
-                    {p.status === "paused" && <button title="Resume" onClick={() => setStatus(p, "active")} className="grid h-8 w-8 place-items-center rounded-lg text-green-400 hover:bg-night-700"><FiPlay /></button>}
+                    {p.status === "active" && <button title="Pause" aria-label="Pause promotion" disabled={!!changing} onClick={() => setStatus(p, "paused")} className="grid h-8 w-8 place-items-center rounded-lg text-mist hover:bg-night-700"><FiPause /></button>}
+                    {p.status === "paused" && <button title="Resume" aria-label="Resume promotion" disabled={!!changing} onClick={() => setStatus(p, "active")} className="grid h-8 w-8 place-items-center rounded-lg text-green-400 hover:bg-night-700"><FiPlay /></button>}
                     {["awaiting_payment", "active", "paused"].includes(p.status) && (
-                      <button title="End" onClick={() => window.confirm("End this promotion?") && setStatus(p, "ended")}
+                      <button title="End" aria-label="End promotion" disabled={!!changing} onClick={() => window.confirm("End this promotion? This can't be undone.") && setStatus(p, "ended")}
                               className="grid h-8 w-8 place-items-center rounded-lg text-red-400 hover:bg-red-500/10"><FiSquare /></button>
                     )}
                   </div>
@@ -228,7 +265,7 @@ export function BusinessPromotions() {
 
 // ── Analytics ────────────────────────────────────────────────────────────────
 export function BusinessAnalytics() {
-  const { orgId } = useOrg();
+  const { orgId, overview } = useOrg();
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
 
@@ -246,21 +283,33 @@ export function BusinessAnalytics() {
   const max = Math.max(1, ...days.map((d) => d.joins));
   const regionTotal = (data.regions || []).reduce((s, r) => s + Number(r.members), 0) || 1;
 
+  const exportCsv = () => {
+    const name = overview.organisation.legal_name;
+    downloadCsv(`${name}-new-members.csv`, [["Date", (d) => d.day], ["New members", (d) => d.joins]], days);
+    downloadCsv(`${name}-regions.csv`, [["Region", (r) => r.region], ["Members", (r) => r.members]], data.regions || []);
+    downloadCsv(`${name}-top-posts.csv`, [
+      ["Post", (p) => p.snippet], ["Likes", (p) => p.likes], ["Comments", (p) => p.comments],
+      ["Views", (p) => p.views], ["Posted", (p) => p.created_at],
+    ], data.top_posts || []);
+  };
+
   return (
-    <Page title="Analytics" subtitle="Totals only. Regions with fewer than 5 members are grouped as Other, so nobody can be singled out.">
+    <Page title="Analytics" subtitle="Totals only. Regions with fewer than 5 members are grouped as Other, so nobody can be singled out."
+          action={<ExportButton onClick={exportCsv} label="Download CSVs" />}>
       <Card>
         <h2 className="text-sm font-semibold">New members, last 30 days</h2>
         <div className="mt-4 flex h-32 items-end gap-1" role="img" aria-label="New members per day for the last 30 days">
           {days.map((d) => (
-            <div key={d.day} title={`${d.day}: ${d.joins}`} className="flex-1 rounded-t bg-flare/70"
+            <div key={d.day} title={`${day(d.day)}: ${d.joins}`} className="flex-1 rounded-t bg-flare/70"
                  style={{ height: `${Math.max(2, (d.joins / max) * 100)}%` }} />
           ))}
         </div>
-        <div className="mt-1 flex justify-between text-[11px] text-dust"><span>{days[0]?.day}</span><span>{days[days.length - 1]?.day}</span></div>
+        <div className="mt-1 flex justify-between text-[11px] text-dust"><span>{days[0] && day(days[0].day)}</span><span>{days.length > 0 && day(days[days.length - 1].day)}</span></div>
       </Card>
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <h2 className="text-sm font-semibold">Where your members are</h2>
+          {(data.regions || []).length === 0 && <p className="mt-3 text-sm text-dust">No members yet.</p>}
           <ul className="mt-3 space-y-2">
             {(data.regions || []).map((r) => (
               <li key={r.region} className="text-sm">
@@ -304,6 +353,10 @@ export function BusinessAnalytics() {
 // ── Team ─────────────────────────────────────────────────────────────────────
 export function BusinessTeam() {
   const { orgId, isAdmin } = useOrg();
+  const loadActivity = useCallback(
+    (before) => supabase.rpc("org_activity", { p_community_id: orgId, p_before: before }),
+    [orgId],
+  );
   const [team, setTeam] = useState(null);
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
@@ -356,12 +409,18 @@ export function BusinessTeam() {
                   {m.role === "admin" ? "Admin" : "Moderator · view only"}
                 </span>
                 {isAdmin && m.role === "moderator" && m.username && (
-                  <button onClick={() => setModerator(m.username, false)} disabled={busy} className="text-xs text-red-400 hover:underline">Remove</button>
+                  <button onClick={() => window.confirm(`Remove @${m.username} as a moderator? They stay a member.`) && setModerator(m.username, false)}
+                          disabled={busy} className="text-xs text-red-400 hover:underline">Remove</button>
                 )}
               </li>
             ))}
           </ul>
         )}
+      </Card>
+      <Card>
+        <h2 className="text-sm font-semibold">Activity</h2>
+        <p className="mt-1 text-xs text-dust">Promotion, team and organisation changes: who made them and when.</p>
+        <div className="mt-3"><ActivityList load={loadActivity} empty="No changes yet." /></div>
       </Card>
     </Page>
   );
@@ -377,7 +436,7 @@ export function BusinessBilling() {
         <p><span className="text-dust">Plan:</span> {o.plan}</p>
         <p><span className="text-dust">Status:</span> {STATUS_TEXT[o.status] || o.status}</p>
         {o.current_period_end && <p><span className="text-dust">Current period ends:</span> {new Date(o.current_period_end).toLocaleDateString()}</p>}
-        <p><span className="text-dust">Promotion credit:</span> {kes(o.promotion_credit_minor, o.currency)}</p>
+        <p><span className="text-dust">Promotion credit:</span> {money(o.promotion_credit_minor, o.currency)}</p>
       </Card>
       <Card className="text-sm text-mist">
         Card and M-Pesa payments are coming soon. Until then, the Starstreak team sets up billing with you directly.

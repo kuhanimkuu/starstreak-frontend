@@ -2,6 +2,7 @@ import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
+import OpsMfaGate from "./OpsMfaGate";
 
 const ADMIN_DOMAIN = "@starstreak.org";
 
@@ -40,5 +41,6 @@ export default function AdminRoute({ children }) {
     );
   }
 
-  return allowed ? children : <Navigate to="/ops/login" replace />;
+  // Team members then pass two-factor (the server requires it for ops powers).
+  return allowed ? <OpsMfaGate>{children}</OpsMfaGate> : <Navigate to="/ops/login" replace />;
 }

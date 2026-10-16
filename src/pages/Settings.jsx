@@ -40,6 +40,14 @@ export default function Settings() {
     navigate("/login");
   }
 
+  // Ends every session on every device (a lost phone, a shared computer).
+  async function handleLogoutEverywhere() {
+    if (!window.confirm("Sign out on every device, including this one?")) return;
+    const { error } = await supabase.auth.signOut({ scope: "global" });
+    if (error) return showToast("error", "Couldn't sign out everywhere. Try again.");
+    navigate("/login");
+  }
+
   async function handleDeleteRequest() {
     if (!user) return;
     setDeleting(true);
@@ -111,6 +119,14 @@ export default function Settings() {
             className="flex items-center gap-1.5 text-sm text-mist hover:text-red-500 transition-colors font-medium"
           >
             <FiLogOut className="text-base" /> Sign out
+          </button>
+        </Row>
+        <Row label="All devices">
+          <button
+            onClick={handleLogoutEverywhere}
+            className="flex items-center gap-1.5 text-sm text-mist hover:text-red-500 transition-colors font-medium"
+          >
+            <FiLogOut className="text-base" /> Sign out everywhere
           </button>
         </Row>
       </Section>

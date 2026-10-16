@@ -5,6 +5,11 @@
  */
 export function nextPath(search = window.location.search) {
   const next = new URLSearchParams(search).get("next") || "";
-  const onThisSite = next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\");
+  // Browsers drop tabs and newlines from URLs ("/<tab>/evil.com" becomes
+  // "//evil.com"), so any whitespace, control character or backslash is
+  // rejected outright.
+  // eslint-disable-next-line no-control-regex
+  const unsafe = /[\s\\\u0000-\u001f]/;
+  const onThisSite = next.startsWith("/") && !next.startsWith("//") && !unsafe.test(next);
   return onThisSite ? next : "/home";
 }

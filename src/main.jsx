@@ -69,6 +69,7 @@ import AdminMessages from "./pages/admin/AdminMessages";
 import AdminPublish from "./pages/admin/AdminPublish";
 import AdminOfficialCommunity from "./pages/admin/AdminOfficialCommunity";
 import AdminSponsorships from "./pages/admin/AdminSponsorships";
+import AdminActivity from "./pages/admin/AdminActivity";
 import BusinessLayout, { BusinessHome, BusinessRoute } from "./layouts/BusinessLayout";
 import {
   BusinessOverview, BusinessPromotions, BusinessAnalytics, BusinessTeam, BusinessBilling, BusinessSettings,
@@ -164,6 +165,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/ops/publish"     element={<OpsPage><AdminPublish /></OpsPage>} />
           <Route path="/ops/starstreak-community" element={<OpsPage><AdminOfficialCommunity /></OpsPage>} />
           <Route path="/ops/organisations" element={<OpsPage><AdminSponsorships /></OpsPage>} />
+          <Route path="/ops/activity"    element={<OpsPage><AdminActivity /></OpsPage>} />
 
           {/* Starstreak Business — a verified organisation's own dashboard */}
           <Route path="/business" element={<BusinessRoute><BusinessHome /></BusinessRoute>} />

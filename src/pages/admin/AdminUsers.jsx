@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { supabase } from "../../lib/supabase";
 import {
   FiSearch, FiMoreVertical, FiCheckCircle, FiSlash, FiShield,
-  FiUser, FiUsers, FiHeart, FiFileText, FiTrendingUp
+  FiUser, FiUsers, FiHeart, FiFileText, FiTrendingUp, FiLogOut, FiKey
 } from "react-icons/fi";
 
 const PAGE_SIZE = 25;
@@ -93,10 +93,40 @@ export default function AdminUsers() {
     setLoading(false);
   }
 
+  // Shows the change only once the server has saved it (a protected column
+  // the server refuses is put back silently, so the saved row is checked).
   async function updateUser(uid, updates) {
-    await supabase.from("users").update(updates).eq("firebase_uid", uid);
-    setUsers(prev => prev.map(u => u.firebase_uid === uid ? { ...u, ...updates } : u));
     setMenuOpen(null);
+    // Only the yes/no columns are readable back from users (the rest is
+    // hidden from clients), and they're the ones the server may refuse.
+    const flags = Object.keys(updates).filter((k) => typeof updates[k] === "boolean");
+    const { data: saved, error } = await supabase.from("users").update(updates).eq("firebase_uid", uid)
+      .select(["firebase_uid", ...flags].join(", "));
+    const row = saved?.[0];
+    const stuck = row && Object.entries(updates).some(([k, v]) => typeof v === "boolean" && row[k] !== v);
+    if (error || !row || stuck) {
+      return window.alert(`Couldn't save that change: ${error?.message || "the server didn't accept it"}`);
+    }
+    setUsers(prev => prev.map(u => u.firebase_uid === uid ? { ...u, ...updates } : u));
+  }
+
+  function suspend(user) {
+    if (!window.confirm(`Suspend @${user.username || user.display_name}? They're signed out on every device and can't sign in until unsuspended.`)) return;
+    updateUser(user.firebase_uid, { is_suspended: true, suspended_at: new Date().toISOString() });
+  }
+
+  async function resetTwoFactor(user) {
+    setMenuOpen(null);
+    if (!window.confirm(`Reset @${user.username || user.display_name}'s two-factor? They're signed out and set up a new authenticator on their next ops sign-in.`)) return;
+    const { error } = await supabase.rpc("ops_reset_mfa", { p_firebase_uid: user.firebase_uid });
+    window.alert(error ? `Couldn't reset it: ${error.message}` : "Two-factor reset. They'll set it up again when they next sign in.");
+  }
+
+  async function signOutEverywhere(user) {
+    setMenuOpen(null);
+    if (!window.confirm(`Sign @${user.username || user.display_name} out on every device? Their account stays active.`)) return;
+    const { data, error } = await supabase.rpc("ops_sign_out_everywhere", { p_firebase_uid: user.firebase_uid });
+    window.alert(error ? `Couldn't sign them out: ${error.message}` : `Signed out of ${data} session${data === 1 ? "" : "s"}.`);
   }
 
   const filtered = search
@@ -239,8 +269,9 @@ export default function AdminUsers() {
                               {user.is_suspended
                                 ? <MenuItem icon={FiUser} label="Unsuspend"
                                     onClick={() => updateUser(user.firebase_uid, { is_suspended: false, suspension_reason: null })} />
-                                : <MenuItem icon={FiSlash} label="Suspend" danger
-                                    onClick={() => updateUser(user.firebase_uid, { is_suspended: true, suspended_at: new Date().toISOString() })} />}
+                                : <MenuItem icon={FiSlash} label="Suspend" danger onClick={() => suspend(user)} />}
+                              <MenuItem icon={FiLogOut} label="Sign out everywhere" onClick={() => signOutEverywhere(user)} />
+                              {user.is_admin && <MenuItem icon={FiKey} label="Reset two-factor" onClick={() => resetTwoFactor(user)} />}
                             </div>
                           )}
                         </td>
