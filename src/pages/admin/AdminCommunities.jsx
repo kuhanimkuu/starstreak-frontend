@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import {
   FiSearch, FiStar, FiTrash2, FiZap, FiLayers, FiClock,
-  FiArchive, FiSlash, FiAlertTriangle, FiFlag, FiCheckCircle, FiUsers
+  FiArchive, FiSlash, FiAlertTriangle, FiFlag, FiCheckCircle, FiUsers, FiAward, FiBriefcase
 } from "react-icons/fi";
+import { Link } from "react-router-dom";
 
 const PAGE_SIZE = 20;
 
@@ -57,6 +58,12 @@ export default function AdminCommunities() {
   const [flashFilter, setFlashFilter] = useState("all");     // flash sub-filter
   const [communities, setCommunities] = useState([]);
   const [reportCounts, setReportCounts] = useState({});      // id → pending report count
+  // id → sponsorship ({ status, legal_name }) for the communities shown.
+  // A community gets its check one of two ways, and the app shows them
+  // differently: earned here ("Verified", violet, the Make Verified button) or
+  // paid for as a verified organisation ("Organisation", blue, managed on
+  // the Organisations page).
+  const [orgs, setOrgs] = useState({});
   const [loading, setLoading]       = useState(true);
   const [search, setSearch]         = useState("");
   const [page, setPage]             = useState(0);
@@ -64,6 +71,16 @@ export default function AdminCommunities() {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [suspendTarget, setSuspendTarget] = useState(null);
   const [suspendReason, setSuspendReason] = useState("");
+
+  useEffect(() => {
+    const ids = tab === "normal" ? communities.map(c => c.id) : [];
+    if (!ids.length) { setOrgs({}); return; }
+    supabase.from("community_sponsorships").select("community_id, status, legal_name").in("community_id", ids)
+      .then(({ data, error }) => {
+        if (error) { console.error(error); return; }
+        setOrgs(Object.fromEntries((data || []).map(r => [r.community_id, r])));
+      });
+  }, [communities, tab]);
 
   useEffect(() => { loadCommunities(); }, [tab, filter, flashFilter, page]);
 
@@ -263,11 +280,31 @@ export default function AdminCommunities() {
   }
 
   async function unverify(id) {
-    if (!window.confirm("Remove this community's blue check?")) return;
+    if (!window.confirm("Remove this community's earned check (Verified)?")) return;
     const change = { verification_status: "pending", verification_tier: "unverified", verified_at: null, verified_by: null };
     const { data: saved, error } = await supabase.from("communities").update(change).eq("id", id).select("id");
     if (error || !saved?.length) return window.alert(`Couldn't remove verification: ${error?.message || "nothing was updated"}`);
     setCommunities(prev => prev.map(c => c.id === id ? { ...c, ...change } : c));
+  }
+
+  // Manual override for verified organisations (when the automated
+  // application can't be used): ops_grant_organisation / ops_remove_organisation.
+  async function grantOrganisation(community) {
+    const legalName = window.prompt(`Organisation's legal name for "${community.name}":`, orgs[community.id]?.legal_name || "");
+    if (!legalName?.trim()) return;
+    const website = window.prompt("Its website (optional):", "") ?? "";
+    const { error } = await supabase.rpc("ops_grant_organisation", {
+      p_community_id: community.id, p_legal_name: legalName.trim(), p_website: website.trim() || null,
+    });
+    if (error) return window.alert(`Couldn't make it an organisation: ${error.message}`);
+    setOrgs(prev => ({ ...prev, [community.id]: { community_id: community.id, status: "active", legal_name: legalName.trim() } }));
+  }
+
+  async function removeOrganisation(community) {
+    if (!window.confirm(`Remove "${community.name}" as a verified organisation?`)) return;
+    const { error } = await supabase.rpc("ops_remove_organisation", { p_community_id: community.id });
+    if (error) return window.alert(`Couldn't remove it: ${error.message}`);
+    setOrgs(prev => ({ ...prev, [community.id]: { ...prev[community.id], status: "lapsed" } }));
   }
 
   async function confirmSuspend() {
@@ -427,9 +464,16 @@ export default function AdminCommunities() {
                               <FiStar className="text-xs" /> Starstreak Official
                             </span>
                           )}
+                          {tab === "normal" && orgs[community.id] && (
+                            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-sky-500/20 text-sky-300"
+                              title={`Verified organisation: ${orgs[community.id].legal_name}`}>
+                              <FiBriefcase className="text-xs" /> Organisation · {orgs[community.id].status.replace("_", " ")}
+                            </span>
+                          )}
                           {tab === "normal" && community.type !== "nexoraOfficial" && community.verification_status === "verified" && (
-                            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-sky-500/20 text-sky-300">
-                              <FiCheckCircle className="text-xs" /> Verified
+                            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-violet-500/20 text-violet-300"
+                              title="Earned its check">
+                              <FiAward className="text-xs" /> Verified (earned)
                             </span>
                           )}
                           {tab === "normal" && community.is_suspended && (
@@ -473,13 +517,33 @@ export default function AdminCommunities() {
                       {tab === "normal" && !community.is_suspended && community.type !== "nexoraOfficial" && (
                         community.verification_status === "verified"
                           ? <button onClick={() => unverify(community.id)}
-                              className="flex-1 text-xs py-1.5 rounded-lg bg-sky-500/15 text-sky-300 hover:bg-sky-500/25 transition-colors">
-                              Remove verification
+                              className="flex-1 text-xs py-1.5 rounded-lg bg-violet-500/15 text-violet-300 hover:bg-violet-500/25 transition-colors">
+                              Remove Verified
                             </button>
                           : <button onClick={() => verifyCommunity(community.id)}
-                              className="flex-1 text-xs py-1.5 rounded-lg bg-sky-500/15 text-sky-300 hover:bg-sky-500/25 transition-colors flex items-center justify-center gap-1">
-                              <FiCheckCircle className="text-xs" /> Verify
+                              className="flex-1 text-xs py-1.5 rounded-lg bg-violet-500/15 text-violet-300 hover:bg-violet-500/25 transition-colors flex items-center justify-center gap-1">
+                              <FiAward className="text-xs" /> Make Verified
                             </button>
+                      )}
+                      {/* Organisation (paid, verified business): normally through the
+                          app's application and the Organisations page; this is the
+                          manual override. */}
+                      {tab === "normal" && !community.is_suspended && community.type !== "nexoraOfficial" && (
+                        ["active", "grace"].includes(orgs[community.id]?.status)
+                          ? <button onClick={() => removeOrganisation(community)}
+                              className="flex-1 text-xs py-1.5 rounded-lg bg-sky-500/15 text-sky-300 hover:bg-sky-500/25 transition-colors">
+                              Remove Organisation
+                            </button>
+                          : <button onClick={() => grantOrganisation(community)}
+                              className="flex-1 text-xs py-1.5 rounded-lg bg-sky-500/15 text-sky-300 hover:bg-sky-500/25 transition-colors flex items-center justify-center gap-1">
+                              <FiBriefcase className="text-xs" /> Make Organisation
+                            </button>
+                      )}
+                      {tab === "normal" && orgs[community.id] && (
+                        <Link to="/ops/organisations" title="Open its application"
+                          className="text-xs py-1.5 px-2 rounded-lg text-sky-300 hover:bg-sky-500/15 transition-colors">
+                          Details
+                        </Link>
                       )}
 
                       {/* Suspend / Unsuspend */}
