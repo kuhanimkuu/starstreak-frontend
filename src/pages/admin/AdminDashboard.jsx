@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
+import SystemHealth from "./SystemHealth";
 import {
   FiUsers, FiFileText, FiLayers, FiFlag, FiZap,
   FiTrendingUp, FiAlertCircle, FiMail
@@ -61,6 +62,8 @@ export default function AdminDashboard() {
         <h1 className="text-2xl font-bold text-star">Dashboard</h1>
         <p className="text-mist text-sm mt-1">Platform overview</p>
       </div>
+
+      <SystemHealth />
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         {statCards.map(({ label, value, icon: Icon, color, bg, link }) => {
