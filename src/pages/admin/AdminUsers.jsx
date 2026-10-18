@@ -83,9 +83,12 @@ export default function AdminUsers() {
   async function searchUsers(term) {
     if (!term.trim()) { loadUsers(); return; }
     setLoading(true);
+    // Commas, brackets and quotes are filter syntax: keep letters, digits,
+    // spaces and the characters names and emails use.
+    const safe = term.replace(/[^\p{L}\p{N}\s@'._+-]/gu, " ").replace(/\s+/g, " ").trim();
     const { data } = await supabase.from("users_admin")
       .select(COLS)
-      .or(`username.ilike.%${term}%,display_name.ilike.%${term}%,email.ilike.%${term}%`)
+      .or(`username.ilike.%${safe}%,display_name.ilike.%${safe}%,email.ilike.%${safe}%`)
       .neq("is_deleted", true)
       .order("created_at", { ascending: false })
       .limit(50);
