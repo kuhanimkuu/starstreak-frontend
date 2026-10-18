@@ -1,3 +1,4 @@
+/* global process */
 import { defineConfig, devices } from "@playwright/test";
 
 // Browser tests against a local preview of the built site (npm run build
