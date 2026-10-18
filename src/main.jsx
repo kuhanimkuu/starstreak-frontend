@@ -1,10 +1,10 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { initErrorTracking } from "./lib/errorTracking";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import MainLayout from "./layouts/MainLayout";
-import AdminLayout from "./layouts/AdminLayout";
+const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
 import UserLayout from "./layouts/UserLayout";
 import { AuthProvider } from "./context/AuthContext";
 
@@ -49,51 +49,56 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 
 // User portal pages
-import Dashboard from "./pages/Dashboard";
-import MyPosts from "./pages/MyPosts";
-import MyCommunities from "./pages/MyCommunities";
-import Profile from "./pages/Profile";
-import Settings from "./pages/Settings";
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const MyPosts = lazy(() => import("./pages/MyPosts"));
+const MyCommunities = lazy(() => import("./pages/MyCommunities"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Settings = lazy(() => import("./pages/Settings"));
 
 // Ops (admin) pages
-import OpsLogin from "./pages/ops/OpsLogin";
-import OpsResetPassword from "./pages/ops/OpsResetPassword";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminCommunities from "./pages/admin/AdminCommunities";
-import AdminReports from "./pages/admin/AdminReports";
-import AdminAnalytics from "./pages/admin/AdminAnalytics";
-import AdminSafety from "./pages/admin/AdminSafety";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminContent from "./pages/admin/AdminContent";
-import AdminMessages from "./pages/admin/AdminMessages";
-import AdminPublish from "./pages/admin/AdminPublish";
-import AdminOfficialCommunity from "./pages/admin/AdminOfficialCommunity";
-import AdminSponsorships from "./pages/admin/AdminSponsorships";
-import AdminActivity from "./pages/admin/AdminActivity";
-import BusinessLayout, { BusinessHome, BusinessRoute } from "./layouts/BusinessLayout";
-import {
-  BusinessOverview, BusinessPromotions, BusinessAnalytics, BusinessTeam, BusinessBilling, BusinessSettings,
-} from "./pages/business/BusinessPages";
-import AdminRoute from "./components/AdminRoute";
+const OpsLogin = lazy(() => import("./pages/ops/OpsLogin"));
+const OpsResetPassword = lazy(() => import("./pages/ops/OpsResetPassword"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminCommunities = lazy(() => import("./pages/admin/AdminCommunities"));
+const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
+const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
+const AdminSafety = lazy(() => import("./pages/admin/AdminSafety"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminContent = lazy(() => import("./pages/admin/AdminContent"));
+const AdminMessages = lazy(() => import("./pages/admin/AdminMessages"));
+const AdminPublish = lazy(() => import("./pages/admin/AdminPublish"));
+const AdminOfficialCommunity = lazy(() => import("./pages/admin/AdminOfficialCommunity"));
+const AdminSponsorships = lazy(() => import("./pages/admin/AdminSponsorships"));
+const AdminActivity = lazy(() => import("./pages/admin/AdminActivity"));
+const BusinessLayout = lazy(() => import("./layouts/BusinessLayout"));
+const BusinessHome = lazy(() => import("./layouts/BusinessLayout").then((m) => ({ default: m.BusinessHome })));
+const BusinessRoute = lazy(() => import("./layouts/BusinessLayout").then((m) => ({ default: m.BusinessRoute })));
+const BusinessOverview = lazy(() => import("./pages/business/BusinessPages").then((m) => ({ default: m.BusinessOverview })));
+const BusinessPromotions = lazy(() => import("./pages/business/BusinessPages").then((m) => ({ default: m.BusinessPromotions })));
+const BusinessAnalytics = lazy(() => import("./pages/business/BusinessPages").then((m) => ({ default: m.BusinessAnalytics })));
+const BusinessTeam = lazy(() => import("./pages/business/BusinessPages").then((m) => ({ default: m.BusinessTeam })));
+const BusinessBilling = lazy(() => import("./pages/business/BusinessPages").then((m) => ({ default: m.BusinessBilling })));
+const BusinessSettings = lazy(() => import("./pages/business/BusinessPages").then((m) => ({ default: m.BusinessSettings })));
+const AdminRoute = lazy(() => import("./components/AdminRoute"));
 
 // Web app (logged-in Starstreak)
-import AppRoute from "./app/AppRoute";
-import HomePage from "./app/pages/HomePage";
-import PostPage from "./app/pages/PostPage";
-import ProfilePage from "./app/pages/ProfilePage";
-import SoonPage from "./app/pages/SoonPage";
-import ExplorePage from "./app/pages/ExplorePage";
-import NotificationsPage from "./app/pages/NotificationsPage";
-import CommunitiesPage from "./app/pages/CommunitiesPage";
-import CommunityPage from "./app/pages/CommunityPage";
-import FlashesPage from "./app/pages/FlashesPage";
-import FlashPage from "./app/pages/FlashPage";
+const AppRoute = lazy(() => import("./app/AppRoute"));
+const HomePage = lazy(() => import("./app/pages/HomePage"));
+const PostPage = lazy(() => import("./app/pages/PostPage"));
+const ProfilePage = lazy(() => import("./app/pages/ProfilePage"));
+const SoonPage = lazy(() => import("./app/pages/SoonPage"));
+const ExplorePage = lazy(() => import("./app/pages/ExplorePage"));
+const NotificationsPage = lazy(() => import("./app/pages/NotificationsPage"));
+const CommunitiesPage = lazy(() => import("./app/pages/CommunitiesPage"));
+const CommunityPage = lazy(() => import("./app/pages/CommunityPage"));
+const FlashesPage = lazy(() => import("./app/pages/FlashesPage"));
+const FlashPage = lazy(() => import("./app/pages/FlashPage"));
 // The web is the lighter Starstreak: messages and creating communities / Flashes
 // are app-only. Their full web versions are kept (app/pages/MessagesPage.jsx,
 // CreatePages.jsx) — swap the elements below back to switch them on.
-import AppOnlyPage from "./app/pages/AppOnlyPage";
-import SavedPage from "./app/pages/SavedPage";
+const AppOnlyPage = lazy(() => import("./app/pages/AppOnlyPage"));
+const SavedPage = lazy(() => import("./app/pages/SavedPage"));
 
 import "./styles/globals.css";
 
@@ -117,6 +122,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
+        {/* The ops, business, web-app and account sections load when first
+            opened, so visitors to the public site don't download them. */}
+        <Suspense fallback={<div className="min-h-screen bg-night-950" aria-busy="true" />}>
         <Routes>
           {/* Ops login — standalone */}
           <Route path="/ops/login"          element={<OpsLogin />} />
@@ -219,6 +227,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/terms"     element={<MainLayout><Terms /></MainLayout>} />
           <Route path="/licenses"  element={<MainLayout><Licenses /></MainLayout>} />
         </Routes>
+        </Suspense>
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
