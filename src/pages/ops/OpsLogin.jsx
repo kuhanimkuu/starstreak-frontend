@@ -4,6 +4,8 @@ import { supabase } from "../../lib/supabase";
 import { FiLock, FiMail, FiEye, FiEyeOff, FiArrowLeft, FiCheck } from "react-icons/fi";
 import FlarelyMark from "../../components/FlarelyMark";
 import Starfield from "../../components/ui/Starfield";
+import Turnstile from "../../components/Turnstile";
+import { useCaptcha, isCaptchaError, CAPTCHA_ERROR } from "../../lib/useCaptcha";
 
 const ADMIN_DOMAIN = "@starstreak.org";
 
@@ -16,6 +18,7 @@ export default function OpsLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [resetSent, setResetSent] = useState(false);
+  const captcha = useCaptcha();
 
   async function handleLogin(e) {
     e.preventDefault();
@@ -28,10 +31,12 @@ export default function OpsLogin() {
       return;
     }
 
-    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    const captchaToken = await captcha.getToken();
+    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password, options: { captchaToken } });
+    captcha.used();
 
     if (authError) {
-      setError("Invalid credentials.");
+      setError(isCaptchaError(authError) ? CAPTCHA_ERROR : "Invalid credentials.");
       setLoading(false);
       return;
     }
@@ -65,10 +70,12 @@ export default function OpsLogin() {
     // Same origin the console is served from (nexora.starstreak.org in production, localhost in dev).
     const redirectTo = `${window.location.origin}/ops/reset-password`;
 
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    const captchaToken = await captcha.getToken();
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, { redirectTo, captchaToken });
+    captcha.used();
 
     if (resetError) {
-      setError("Failed to send reset email. Check the address and try again.");
+      setError(isCaptchaError(resetError) ? CAPTCHA_ERROR : "Failed to send reset email. Check the address and try again.");
       setLoading(false);
       return;
     }
@@ -125,6 +132,7 @@ export default function OpsLogin() {
                   </div>
                 </div>
                 {error && <p className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{error}</p>}
+                <Turnstile key={`${view}-${captcha.captchaKey}`} onToken={captcha.onToken} />
                 <button type="submit" disabled={loading}
                   className="w-full bg-flare-deep hover:bg-flare disabled:opacity-50 text-star font-medium text-sm rounded-full py-2.5 transition-colors">
                   {loading ? "Signing in…" : "Sign in"}
@@ -154,6 +162,7 @@ export default function OpsLogin() {
                   </div>
                 </div>
                 {error && <p className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{error}</p>}
+                <Turnstile key={`${view}-${captcha.captchaKey}`} onToken={captcha.onToken} />
                 <button type="submit" disabled={loading}
                   className="w-full bg-flare-deep hover:bg-flare disabled:opacity-50 text-star font-medium text-sm rounded-full py-2.5 transition-colors">
                   {loading ? "Sending…" : "Send reset link"}

@@ -4,6 +4,8 @@ import { nextPath } from "../lib/nextPath";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import AuthShell, { AuthError, OrDivider, googleBtn } from "../components/ui/AuthShell";
+import Turnstile from "../components/Turnstile";
+import { useCaptcha, isCaptchaError, CAPTCHA_ERROR } from "../lib/useCaptcha";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -12,19 +14,22 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const captcha = useCaptcha();
 
   async function handleSignup(e) {
     e.preventDefault();
     setError("");
     setLoading(true);
+    const captchaToken = await captcha.getToken();
     const { error: err } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: name } },
+      options: { data: { full_name: name }, captchaToken },
     });
+    captcha.used();
     if (err) {
       // Same answer whether or not the email has an account (no account lookup).
-      setError(err.message.includes("already registered")
+      setError(isCaptchaError(err) ? CAPTCHA_ERROR : err.message.includes("already registered")
         ? "If this email can be used, you'll get a link to confirm it. Already have an account? Sign in instead."
         : "Could not create account. Try again.");
       setLoading(false);
@@ -90,6 +95,7 @@ export default function Signup() {
             autoComplete="new-password"
           />
         </div>
+        <Turnstile key={captcha.captchaKey} onToken={captcha.onToken} />
         <button type="submit" disabled={loading} className="btn-flare w-full disabled:opacity-50">
           {loading ? "Creating account…" : "Create account"}
         </button>

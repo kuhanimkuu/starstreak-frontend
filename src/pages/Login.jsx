@@ -4,6 +4,8 @@ import { nextPath } from "../lib/nextPath";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import AuthShell, { AuthError, OrDivider, googleBtn } from "../components/ui/AuthShell";
+import Turnstile from "../components/Turnstile";
+import { useCaptcha, isCaptchaError, CAPTCHA_ERROR } from "../lib/useCaptcha";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -11,14 +13,17 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const captcha = useCaptcha();
 
   async function handleLogin(e) {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+    const captchaToken = await captcha.getToken();
+    const { error: err } = await supabase.auth.signInWithPassword({ email, password, options: { captchaToken } });
+    captcha.used();
     if (err) {
-      setError("Invalid email or password.");
+      setError(isCaptchaError(err) ? CAPTCHA_ERROR : "Invalid email or password.");
       setLoading(false);
     } else {
       navigate(nextPath());
@@ -73,6 +78,7 @@ export default function Login() {
             autoComplete="current-password"
           />
         </div>
+        <Turnstile key={captcha.captchaKey} onToken={captcha.onToken} />
         <button type="submit" disabled={loading} className="btn-flare w-full disabled:opacity-50">
           {loading ? "Signing in…" : "Sign in"}
         </button>

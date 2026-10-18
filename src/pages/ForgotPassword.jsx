@@ -3,22 +3,28 @@ import { supabase } from "../lib/supabase";
 import { Link } from "react-router-dom";
 import { FiCheck } from "react-icons/fi";
 import AuthShell, { AuthError } from "../components/ui/AuthShell";
+import Turnstile from "../components/Turnstile";
+import { useCaptcha, isCaptchaError, CAPTCHA_ERROR } from "../lib/useCaptcha";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const captcha = useCaptcha();
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setLoading(true);
+    const captchaToken = await captcha.getToken();
     const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
+      captchaToken,
     });
+    captcha.used();
     if (err) {
-      setError("Failed to send reset email. Please try again.");
+      setError(isCaptchaError(err) ? CAPTCHA_ERROR : "Failed to send reset email. Please try again.");
     } else {
       setSent(true);
     }
@@ -62,6 +68,7 @@ export default function ForgotPassword() {
                 autoComplete="email"
               />
             </div>
+            <Turnstile key={captcha.captchaKey} onToken={captcha.onToken} />
             <button type="submit" disabled={loading} className="btn-flare w-full disabled:opacity-50">
               {loading ? "Sending…" : "Send reset link"}
             </button>

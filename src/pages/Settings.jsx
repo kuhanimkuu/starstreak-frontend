@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
+import Turnstile from "../components/Turnstile";
+import { useCaptcha, isCaptchaError, CAPTCHA_ERROR } from "../lib/useCaptcha";
 import { functionError } from "../lib/turnstile";
 import {
   FiLock, FiShield, FiTrash2, FiLogOut, FiExternalLink,
@@ -16,6 +18,8 @@ export default function Settings() {
   const [deleteModal, setDeleteModal]   = useState(false);
   const [deleting, setDeleting]         = useState(false);
   const [pwResetSent, setPwResetSent]   = useState(false);
+  const [showCheck, setShowCheck]       = useState(false);
+  const captcha = useCaptcha();
 
   function showToast(type, message) {
     setToast({ type, message });
@@ -24,11 +28,20 @@ export default function Settings() {
 
   async function handlePasswordReset() {
     if (!user?.email) return;
+    // The security check appears only now, not all the time on this page.
+    setShowCheck(true);
     try {
+      const captchaToken = await captcha.getToken();
       const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
         redirectTo: `${window.location.origin}/reset-password`,
+        captchaToken,
       });
-      if (error) throw error;
+      captcha.used();
+      if (error) {
+        if (isCaptchaError(error)) return showToast("error", CAPTCHA_ERROR);
+        throw error;
+      }
+      setShowCheck(false);
       setPwResetSent(true);
       showToast("success", "Password reset email sent. Check your inbox.");
     } catch {
@@ -129,6 +142,7 @@ export default function Settings() {
             {pwResetSent ? "Reset email sent ✓" : "Send reset email"}
           </button>
         </Row>
+        {showCheck && <Turnstile key={captcha.captchaKey} onToken={captcha.onToken} />}
         <Row label="Sign out">
           <button
             onClick={handleLogout}
