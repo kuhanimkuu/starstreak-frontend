@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { initErrorTracking } from "./lib/errorTracking";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import MainLayout from "./layouts/MainLayout";
@@ -109,6 +110,8 @@ function UserPage({ children }) {
     <UserLayout>{children}</UserLayout>
   );
 }
+
+initErrorTracking();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

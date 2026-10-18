@@ -1,4 +1,5 @@
 import { Component } from "react";
+import { reportError } from "../lib/errorTracking";
 
 /** Shows a friendly message (instead of a blank page) if a page crashes. */
 export default class ErrorBoundary extends Component {
@@ -10,6 +11,7 @@ export default class ErrorBoundary extends Component {
 
   componentDidCatch(error) {
     console.error("[Starstreak web] page crashed:", error);
+    reportError(error);
   }
 
   componentDidUpdate(prev) {
