@@ -12,6 +12,7 @@ import { Spinner } from "../components/Feed";
 import { supabase } from "../../lib/supabase";
 import { searchUsers } from "../lib/api";
 import { safeUrl } from "../lib/media";
+import { useChatMedia } from "../lib/chatMedia";
 import { timeAgo } from "../lib/format";
 import { DECRYPT_FAILED } from "../lib/e2e";
 import {
@@ -195,7 +196,8 @@ function Ticks({ m }) {
 }
 
 function MessageBody({ m }) {
-  const media = safeUrl(m.media_url);
+  // Chat media is private: a signed link (null while it's being made).
+  const media = useChatMedia(safeUrl(m.media_url));
   const text = m.text === DECRYPT_FAILED ? "🔒 This message can't be decrypted on this device." : m.text;
   switch (m.message_type) {
     case "image":
@@ -219,7 +221,7 @@ function MessageBody({ m }) {
       ) : null;
     case "gif":
     case "sticker": {
-      const src = safeUrl(m.gif_url || m.sticker_url || m.media_url);
+      const src = safeUrl(m.gif_url || m.sticker_url) || media;
       return src ? <img src={src} alt={m.message_type} className="max-h-48 rounded-xl" /> : null;
     }
     case "sharedPost":
