@@ -5,7 +5,11 @@ import { supabase } from "../../lib/supabase";
 // Reply by email from no-reply@starstreak.org (edge function ops-send-email);
 // replies aren't read, the email points people to the contact form.
 // The recipient is the address on the message/request, chosen by the server;
-// every email sent is listed underneath from outbound_emails.
+// every email sent is listed underneath from outbound_emails. An address that
+// bounced or marked us as spam (email_suppressions) is refused until the team
+// allows it again here.
+
+const STATUS_LABEL = { sent: "Sent", sending: "Sending", failed: "Failed", bounced: "Bounced", complained: "Marked as spam" };
 
 async function errorText(error) {
   try {
@@ -23,13 +27,26 @@ export default function ReplyBox({ kind, id, to, defaultSubject, greeting, statu
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [history, setHistory] = useState(null);
+  const [blocked, setBlocked] = useState(null); // "bounced" | "complained" | null
 
   const loadHistory = useCallback(async () => {
     const { data } = await supabase.from("outbound_emails")
       .select("id, created_at, subject, body, status, error")
       .eq("related_id", id).order("created_at", { ascending: false });
     setHistory(data || []);
-  }, [id]);
+    const { data: s } = await supabase.from("email_suppressions")
+      .select("reason").eq("email", (to || "").trim().toLowerCase()).maybeSingle();
+    setBlocked(s?.reason || null);
+  }, [id, to]);
+
+  async function allowAgain() {
+    if (!window.confirm(`Allow emails to ${to} again? Only do this if they've fixed their mailbox or asked to hear from us.`)) return;
+    const { error: e } = await supabase.rpc("ops_unsuppress_email", { p_email: to });
+    if (e) return setError(`Couldn't change it: ${e.message}`);
+    setError("");
+    setNotice(`Emails to ${to} are allowed again.`);
+    loadHistory();
+  }
 
   useEffect(() => {
     const t = setTimeout(loadHistory, 0);
@@ -74,9 +91,17 @@ export default function ReplyBox({ kind, id, to, defaultSubject, greeting, statu
           Mark as {statusLabel} after sending
         </label>
       )}
+      {blocked && (
+        <div role="alert" className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-lg p-2 space-y-1">
+          <p>{blocked === "bounced"
+            ? "An earlier email to this address bounced, so it probably doesn't exist. Sending is blocked."
+            : "This person marked an earlier Starstreak email as spam. Sending is blocked."}</p>
+          <button onClick={allowAgain} className="underline hover:text-amber-200">Allow emails to this address again</button>
+        </div>
+      )}
       {error && <p role="alert" className="text-xs text-red-400">{error}</p>}
       {notice && <p role="status" className="text-xs text-green-400">{notice}</p>}
-      <button onClick={send} disabled={busy}
+      <button onClick={send} disabled={busy || Boolean(blocked)}
         className="flex items-center justify-center gap-2 w-full py-2 text-sm bg-flare-deep hover:bg-flare text-star rounded-lg transition-colors disabled:opacity-50">
         <FiSend /> {busy ? "Sending…" : "Send"}
       </button>
@@ -89,12 +114,12 @@ export default function ReplyBox({ kind, id, to, defaultSubject, greeting, statu
               <li key={m.id} className="text-xs">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-star truncate">{m.subject}</span>
-                  <span className={m.status === "sent" ? "text-green-400" : m.status === "failed" ? "text-red-400" : "text-dust"}>
-                    {m.status === "sent" ? "Sent" : m.status === "failed" ? "Failed" : "Sending"} · {new Date(m.created_at).toLocaleString()}
+                  <span className={m.status === "sent" ? "text-green-400" : m.status === "sending" ? "text-dust" : "text-red-400"}>
+                    {STATUS_LABEL[m.status] || m.status} · {new Date(m.created_at).toLocaleString()}
                   </span>
                 </div>
                 <p className="text-dust whitespace-pre-wrap line-clamp-3 mt-0.5">{m.body}</p>
-                {m.status === "failed" && m.error && <p className="text-red-400/80 mt-0.5">{m.error}</p>}
+                {m.status !== "sent" && m.error && <p className="text-red-400/80 mt-0.5">{m.error}</p>}
               </li>
             ))}
           </ul>

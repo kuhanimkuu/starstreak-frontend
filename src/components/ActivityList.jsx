@@ -38,6 +38,8 @@ function describe(r, showCommunity) {
       return r.action === "banned" ? `banned ${who}${where}` : `unbanned ${who}${where}`;
     case "flag":
       return `turned ${r.action === "flag_on" ? "on" : "off"} the "${r.subject_id}" feature switch`;
+    case "email":
+      return `allowed emails to ${r.subject_id} again`;
     case "user":
       return {
         admin_granted: `gave ${who} Starstreak team access`, admin_removed: `removed ${who}'s Starstreak team access`,
