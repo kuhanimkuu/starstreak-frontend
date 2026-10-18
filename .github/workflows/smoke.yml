@@ -1,0 +1,44 @@
+name: Smoke test (live site)
+
+# After each deploy to main (Cloudflare Pages builds it, so wait a few
+# minutes) and every hour: the live pages answer, the security headers are
+# there, and the Supabase API is up. Reads only; nothing is submitted.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Wait for Cloudflare to deploy
+        if: github.event_name == 'push'
+        run: sleep 180
+      - name: Pages answer
+        run: |
+          set -e
+          for path in / /login /contact /data-request /business /ops/login /privacy /terms; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "https://starstreak.org$path")
+            echo "$path -> $code"
+            test "$code" = "200"
+          done
+      - name: Security headers
+        run: |
+          set -e
+          h=$(curl -sI https://starstreak.org/ops/login)
+          echo "$h" | grep -qi '^strict-transport-security:'
+          echo "$h" | grep -qi '^x-frame-options: DENY'
+          echo "$h" | grep -qi '^x-robots-tag: noindex'
+      - name: Supabase API is up
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' https://rzqsswyvcldnnlvjyhrt.supabase.co/auth/v1/health)
+          echo "auth health -> $code"
+          # 200, or 401 when the health endpoint wants an API key: either way it answered.
+          test "$code" = "200" -o "$code" = "401"
