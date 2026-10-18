@@ -43,13 +43,17 @@ async function sign(path) {
 /** A link that opens `url` now: signed for chat media, unchanged otherwise. */
 export function useChatMedia(url) {
   const path = chatMediaPath(url);
-  const [signed, setSigned] = useState(() => (path ? fresh(path) : null));
+  // undefined = still signing; "" = signing failed; otherwise the link.
+  const [signed, setSigned] = useState(() => (path ? fresh(path) ?? undefined : undefined));
   useEffect(() => {
     if (!path) return;
     let off = false;
-    sign(path).then((u) => { if (!off) setSigned(u); });
+    sign(path).then((u) => { if (!off) setSigned(u || ""); });
     return () => { off = true; };
   }, [path]);
   if (!path) return url;
-  return signed;
+  // While signing is pending, show nothing; if it fails (e.g. the bucket is
+  // still public, before migration 20261018000001), fall back to the stored
+  // address, which then still opens.
+  return signed === undefined ? null : signed || url;
 }
