@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
+import { functionError } from "../lib/turnstile";
 import {
   FiLock, FiShield, FiTrash2, FiLogOut, FiExternalLink,
-  FiAlertTriangle, FiCheck, FiAlertCircle,
+  FiAlertTriangle, FiCheck, FiAlertCircle, FiDownload,
 } from "react-icons/fi";
 
 export default function Settings() {
@@ -48,24 +49,39 @@ export default function Settings() {
     navigate("/login");
   }
 
+  // Deletes the account now, the same way the app does (edge function
+  // user-delete-account): profile wiped, memberships and follows removed,
+  // the sign-in account deleted. Posts stay as "Deleted User".
   async function handleDeleteRequest() {
     if (!user) return;
     setDeleting(true);
-    try {
-      const { error } = await supabase.from("data_requests").insert({
-        name:         profile?.display_name || user.displayName || "Unknown",
-        email:        user.email,
-        request_type: "deletion",
-        details:      "Submitted from account Settings page",
-      });
-      if (error) throw error;
-      setDeleteModal(false);
-      showToast("success", "Deletion request submitted. We'll process it within 5–10 business days.");
-    } catch {
-      showToast("error", "Failed to submit. Email privacy@starstreak.org directly.");
-    } finally {
+    const { error } = await supabase.functions.invoke("user-delete-account", { body: {} });
+    if (error) {
+      showToast("error", await functionError(error, "Couldn't delete your account. Try again or contact us."));
       setDeleting(false);
+      return;
     }
+    await supabase.auth.signOut();
+    navigate("/", { replace: true });
+  }
+
+  // Downloads a copy of this account's data right away (user-export-data).
+  const [exporting, setExporting] = useState(false);
+  async function handleExport() {
+    setExporting(true);
+    const { data, error } = await supabase.functions.invoke("user-export-data", { body: {} });
+    setExporting(false);
+    if (error) return showToast("error", await functionError(error, "Couldn't prepare your data. Try again."));
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement("a"), {
+      href: url, download: `starstreak-data-${new Date().toISOString().slice(0, 10)}.json`,
+    });
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast("success", "Your data has downloaded.");
   }
 
   if (!user) return null;
@@ -134,9 +150,10 @@ export default function Settings() {
       {/* Privacy section */}
       <Section title="Privacy & Data" subtitle="Control how your data is used." icon={<FiShield />}>
         <Row label="Download my data">
-          <Link to="/data-request?type=export" className="flex items-center gap-1.5 text-sm text-accent hover:text-gold font-medium">
-            Request export <FiExternalLink className="text-xs" />
-          </Link>
+          <button onClick={handleExport} disabled={exporting}
+            className="flex items-center gap-1.5 text-sm text-accent hover:text-gold font-medium disabled:opacity-50">
+            <FiDownload className="text-xs" /> {exporting ? "Preparing…" : "Download now"}
+          </button>
         </Row>
         <Row label="Data request">
           <Link to="/data-request" className="flex items-center gap-1.5 text-sm text-accent hover:text-gold font-medium">
@@ -181,7 +198,7 @@ export default function Settings() {
               <h3 className="text-lg font-bold text-star">Delete account?</h3>
             </div>
             <p className="text-mist text-sm mb-2">
-              This submits a deletion request to our team. We'll verify your identity and permanently remove your profile, posts, communities, and all associated data within 5–10 business days.
+              Your account is deleted right away: your profile, photo, memberships and follows are removed, and you can't sign in again. Posts and messages you sent stay, shown as "Deleted User". Download your data first if you want a copy.
             </p>
             <p className="text-red-400 text-sm font-medium mb-5">This action cannot be undone.</p>
             <div className="flex justify-end gap-3">
@@ -189,7 +206,7 @@ export default function Settings() {
                 Cancel
               </button>
               <button onClick={handleDeleteRequest} disabled={deleting} className="px-4 py-2 bg-red-600 text-white rounded-xl text-sm font-medium hover:bg-red-700 disabled:opacity-50">
-                {deleting ? "Submitting…" : "Yes, request deletion"}
+                {deleting ? "Deleting…" : "Yes, delete my account"}
               </button>
             </div>
           </div>
