@@ -1,3 +1,5 @@
+import Turnstile from "../components/Turnstile";
+import { TURNSTILE_SITE_KEY, functionError } from "../lib/turnstile";
 import { useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
@@ -51,6 +53,7 @@ export default function DataRequest() {
     REQUEST_TYPES.some((r) => r.value === typeFromLink) ? typeFromLink : null,
   );
   const typesRef = useRef(null);
+  const [captcha, setCaptcha] = useState("");
   const [form, setForm] = useState(EMPTY);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -71,16 +74,25 @@ export default function DataRequest() {
       setError("Name and email are required.");
       return;
     }
+    if (TURNSTILE_SITE_KEY && !captcha) {
+      setError("Please complete the check below first.");
+      return;
+    }
     setLoading(true);
     setError("");
-    const { error: err } = await supabase.from("data_requests").insert({
-      name: form.name.trim(),
-      email: form.email.trim().toLowerCase(),
-      request_type: selected,
-      details: form.details.trim() || null,
+    // Saved by the public-form edge function (Turnstile check, rate limit).
+    const { error: err } = await supabase.functions.invoke("public-form", {
+      body: {
+        kind: "data_request",
+        name: form.name.trim(),
+        email: form.email.trim(),
+        requestType: selected,
+        details: form.details.trim(),
+        turnstileToken: captcha,
+      },
     });
     if (err) {
-      setError("Something went wrong. Please try again or email privacy@starstreak.org directly.");
+      setError(await functionError(err, "Something went wrong. Please try again."));
       setLoading(false);
       return;
     }
@@ -243,6 +255,8 @@ export default function DataRequest() {
             </p>
 
             {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
+
+            <Turnstile onToken={setCaptcha} />
 
             <button
               type="submit"

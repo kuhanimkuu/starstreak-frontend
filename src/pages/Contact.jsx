@@ -1,3 +1,5 @@
+import Turnstile from "../components/Turnstile";
+import { TURNSTILE_SITE_KEY, functionError } from "../lib/turnstile";
 import { useState } from "react";
 import { FiMail, FiMapPin, FiCheck } from "react-icons/fi";
 import { supabase } from "../lib/supabase";
@@ -40,6 +42,7 @@ function initialForm() {
 
 export default function Contact() {
   const [form, setForm] = useState(initialForm);
+  const [captcha, setCaptcha] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
@@ -52,19 +55,28 @@ export default function Contact() {
       setError("Please fill in all required fields.");
       return;
     }
+    if (TURNSTILE_SITE_KEY && !captcha) {
+      setError("Please complete the check below first.");
+      return;
+    }
     setLoading(true);
     setError("");
-    const { error: err } = await supabase.from("support_messages").insert({
-      name: form.name.trim(),
-      email: form.email.trim().toLowerCase(),
-      subject: form.subject.trim() || form.category,
-      category: form.category,
-      message: form.message.trim(),
-      source: "website",
+    // Saved by the public-form edge function, which checks the Turnstile
+    // token and rate-limits before writing.
+    const { error: err } = await supabase.functions.invoke("public-form", {
+      body: {
+        kind: "contact",
+        name: form.name.trim(),
+        email: form.email.trim(),
+        subject: form.subject.trim(),
+        category: form.category,
+        message: form.message.trim(),
+        turnstileToken: captcha,
+      },
     });
     setLoading(false);
     if (err) {
-      setError("Something went wrong. Please try again or email support@starstreak.org.");
+      setError(await functionError(err, "Something went wrong. Please try again."));
       return;
     }
     setSent(true);
@@ -142,6 +154,7 @@ export default function Contact() {
                   <textarea id="ct-msg" rows={6} required value={form.message} onChange={set("message")} placeholder="Tell us what’s up…" className="field resize-none" />
                 </div>
                 {error && <p className="text-sm text-red-400">{error}</p>}
+                <Turnstile onToken={setCaptcha} />
                 <button type="submit" disabled={loading} className="btn-flare w-full disabled:opacity-60">
                   {loading ? "Sending…" : "Send message"}
                 </button>
