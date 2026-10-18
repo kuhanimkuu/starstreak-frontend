@@ -23,7 +23,10 @@ export default function Signup() {
       options: { data: { full_name: name } },
     });
     if (err) {
-      setError(err.message.includes("already registered") ? "This email is already registered." : "Could not create account. Try again.");
+      // Same answer whether or not the email has an account (no account lookup).
+      setError(err.message.includes("already registered")
+        ? "If this email can be used, you'll get a link to confirm it. Already have an account? Sign in instead."
+        : "Could not create account. Try again.");
       setLoading(false);
     } else {
       navigate(nextPath());
