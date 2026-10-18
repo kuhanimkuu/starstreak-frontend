@@ -36,6 +36,8 @@ function describe(r, showCommunity) {
       if (kind === "role") return value === "moderator" ? `made ${who} a moderator${where}`
         : value === "admin" || value === "owner" ? `made ${who} an admin${where}` : `made ${who} a regular member${where}`;
       return r.action === "banned" ? `banned ${who}${where}` : `unbanned ${who}${where}`;
+    case "flag":
+      return `turned ${r.action === "flag_on" ? "on" : "off"} the "${r.subject_id}" feature switch`;
     case "user":
       return {
         admin_granted: `gave ${who} Starstreak team access`, admin_removed: `removed ${who}'s Starstreak team access`,

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { FiSave, FiFileText, FiLock, FiRadio, FiCheck } from "react-icons/fi";
 import RichEditor from "../../components/RichEditor";
+import FeatureSwitches from "./FeatureSwitches";
 
 const CONTENT_KEYS = [
   {
@@ -101,6 +102,8 @@ export default function AdminSettings() {
           Manage platform content and app-facing documents
         </p>
       </div>
+
+      <FeatureSwitches />
 
       {CONTENT_KEYS.map(({ key, label, icon: Icon, desc, rich }) => (
         <div key={key} className="bg-night-850 border border-line rounded-xl p-6 space-y-4">
