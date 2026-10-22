@@ -63,7 +63,7 @@ export default function AdminDashboard() {
         <p className="text-mist text-sm mt-1">Platform overview</p>
       </div>
 
-      <SystemHealth />
+      <SystemHealth compact />
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         {statCards.map(({ label, value, icon: Icon, color, bg, link }) => {

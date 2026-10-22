@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { FiActivity, FiRefreshCw } from "react-icons/fi";
 import { supabase } from "../../lib/supabase";
 
@@ -15,7 +16,9 @@ function when(ts) {
   return new Date(ts).toLocaleDateString();
 }
 
-export default function SystemHealth() {
+// compact: one line with the status and a link to the full screen
+// (/ops/health), for the dashboard.
+export default function SystemHealth({ compact = false }) {
   const [health, setHealth] = useState(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -47,14 +50,20 @@ export default function SystemHealth() {
             </span>
           )}
         </h2>
-        <button onClick={load} disabled={busy} aria-label="Refresh system health"
-          className="text-dust hover:text-star disabled:opacity-40"><FiRefreshCw className={busy ? "animate-spin" : ""} /></button>
+        {compact ? (
+          <Link to="/ops/health" className="text-flare-soft text-xs hover:underline">
+            {ok ? "View" : "See what went wrong"}
+          </Link>
+        ) : (
+          <button onClick={load} disabled={busy} aria-label="Refresh system health"
+            className="text-dust hover:text-star disabled:opacity-40"><FiRefreshCw className={busy ? "animate-spin" : ""} /></button>
+        )}
       </div>
 
       {error && <p className="mt-3 text-xs text-red-400">{error}</p>}
       {!health && !error && <p className="mt-3 text-xs text-dust">Checking…</p>}
 
-      {health && (
+      {health && !compact && (
         <div className="mt-4 space-y-4 text-sm">
           <div className="grid gap-3 sm:grid-cols-3">
             <div>
@@ -71,6 +80,33 @@ export default function SystemHealth() {
               <p className={health.notifications_failed_7d > 0 ? "text-red-400" : "text-star"}>{health.notifications_failed_7d}</p>
             </div>
           </div>
+          {(http.failures || []).length > 0 && (
+            <div>
+              <p className="text-xs text-dust">What went wrong (latest {http.failures.length})</p>
+              <ul className="mt-1 divide-y divide-line">
+                {http.failures.map((f, i) => (
+                  <li key={i} className="py-2 text-xs">
+                    <p className="text-star">
+                      {f.job || "Unknown job"}
+                      {f.function && <span className="text-dust"> → {f.function}</span>}
+                      <span className="ml-2 text-dust">{when(f.at)}</span>
+                    </p>
+                    <p className="text-red-400">{f.reason}</p>
+                    {!f.job && (
+                      <p className="text-dust">Made before calls were recorded, or not by a scheduled job.</p>
+                    )}
+                    {(f.error || f.reply) && (
+                      <details className="mt-1">
+                        <summary className="cursor-pointer text-dust hover:text-star">Details</summary>
+                        {f.error && <p className="mt-1 break-words font-mono text-mist">{f.error}</p>}
+                        {f.reply && <p className="mt-1 break-words font-mono text-mist">Reply: {f.reply}</p>}
+                      </details>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <table className="w-full text-xs">
             <thead>
               <tr className="text-left text-dust">

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import {
   FiHome, FiUsers, FiLayers, FiFlag, FiTrendingUp,
-  FiShield, FiSettings, FiLogOut, FiMenu, FiX, FiGlobe, FiMail, FiVolume2, FiStar, FiBriefcase, FiActivity,
+  FiShield, FiSettings, FiLogOut, FiMenu, FiX, FiGlobe, FiMail, FiVolume2, FiStar, FiBriefcase, FiActivity, FiHeart,
 } from "react-icons/fi";
 import FlarelyMark from "../components/FlarelyMark";
 
@@ -19,6 +19,7 @@ const NAV = [
   { label: "Analytics", path: "/ops/analytics", icon: FiTrendingUp },
   { label: "Safety", path: "/ops/safety", icon: FiShield },
   { label: "Activity", path: "/ops/activity", icon: FiActivity },
+  { label: "System health", path: "/ops/health", icon: FiHeart },
   { label: "Website", path: "/ops/content", icon: FiGlobe },
   { label: "Settings", path: "/ops/settings", icon: FiSettings },
 ];
