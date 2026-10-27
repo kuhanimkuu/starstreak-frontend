@@ -62,6 +62,21 @@ function Pill({ icon: Icon, count, active, tone, label, onClick, showZero = true
 }
 
 /**
+ * Likes or dislikes as a list the card can count and check for "mine".
+ * Feed posts now come with a count and whether you reacted (like_count,
+ * liked_by_me) instead of every user id; other entries are "" placeholders.
+ * Rows without counts (community, Flash) still carry the full list.
+ */
+function reactionList(post, kind, myId) {
+  const count = post[`${kind}_count`];
+  const mine = post[`${kind}d_by_me`];
+  if (typeof mine !== "boolean" || typeof count !== "number") return post[`${kind}s`] || [];
+  const list = new Array(Math.max(count, mine ? 1 : 0)).fill("");
+  if (mine && myId) list[0] = myId;
+  return list;
+}
+
+/**
  * A post — feed, community or Flash, depending on `adapter` (lib/adapters).
  * `detail` shows the full timestamp and doesn't link to itself. Anonymous
  * posts show no profile link (the author fields arrive masked).
@@ -70,8 +85,8 @@ export default function PostCard({ post, detail = false, onRemoved, adapter = fe
   const { myId, notify, hidePostLocally, savedPostIds, toggleSaved } = useAppSession();
   const navigate = useNavigate();
   const media = useMemo(() => parseMedia(post.media_urls), [post.media_urls]);
-  const [likes, setLikes] = useState(post.likes || []);
-  const [dislikes, setDislikes] = useState(post.dislikes || []);
+  const [likes, setLikes] = useState(() => reactionList(post, "like", myId));
+  const [dislikes, setDislikes] = useState(() => reactionList(post, "dislike", myId));
   const [expanded, setExpanded] = useState(false);
   const [shares, setShares] = useState(post.share_count || 0);
   const [menu, setMenu] = useState(false);
@@ -115,7 +130,7 @@ export default function PostCard({ post, detail = false, onRemoved, adapter = fe
       setLikes(without(likes));
     }
     try {
-      await (kind === "like" ? adapter.like(post, myId) : adapter.dislike(post, myId));
+      await (kind === "like" ? adapter.like(post, myId, !liked) : adapter.dislike(post, myId, !disliked));
     } catch (e) {
       setLikes(before.likes);
       setDislikes(before.dislikes);

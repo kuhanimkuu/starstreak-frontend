@@ -105,10 +105,12 @@ export async function fetchUserPosts(authorId, before) {
   return data || [];
 }
 
-export const toggleLike = (postId) =>
-  invoke("post-toggle-like", { postId, action: "like" }, "Couldn't update the like");
-export const toggleDislike = (postId) =>
-  invoke("post-toggle-like", { postId, action: "dislike" }, "Couldn't update the dislike");
+// set: true/false turns the reaction on/off explicitly (two quick clicks
+// can't cancel out); omitted, it toggles.
+export const toggleLike = (postId, set) =>
+  invoke("post-toggle-like", { postId, action: "like", ...(typeof set === "boolean" ? { set } : {}) }, "Couldn't update the like");
+export const toggleDislike = (postId, set) =>
+  invoke("post-toggle-like", { postId, action: "dislike", ...(typeof set === "boolean" ? { set } : {}) }, "Couldn't update the dislike");
 export const sharePost = (postId) => invoke("post-share", { postId }, "Couldn't share");
 export const deletePost = (postId) => invoke("post-delete", { postId }, "Couldn't delete the post");
 
