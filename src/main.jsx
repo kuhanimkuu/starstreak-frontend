@@ -72,6 +72,7 @@ const AdminOfficialCommunity = lazy(() => import("./pages/admin/AdminOfficialCom
 const AdminSponsorships = lazy(() => import("./pages/admin/AdminSponsorships"));
 const AdminActivity = lazy(() => import("./pages/admin/AdminActivity"));
 const AdminSystemHealth = lazy(() => import("./pages/admin/AdminSystemHealth"));
+const AdminBadges = lazy(() => import("./pages/admin/AdminBadges"));
 const BusinessLayout = lazy(() => import("./layouts/BusinessLayout"));
 const BusinessHome = lazy(() => import("./layouts/BusinessLayout").then((m) => ({ default: m.BusinessHome })));
 const BusinessRoute = lazy(() => import("./layouts/BusinessLayout").then((m) => ({ default: m.BusinessRoute })));
@@ -88,7 +89,6 @@ const AppRoute = lazy(() => import("./app/AppRoute"));
 const HomePage = lazy(() => import("./app/pages/HomePage"));
 const PostPage = lazy(() => import("./app/pages/PostPage"));
 const ProfilePage = lazy(() => import("./app/pages/ProfilePage"));
-const SoonPage = lazy(() => import("./app/pages/SoonPage"));
 const ExplorePage = lazy(() => import("./app/pages/ExplorePage"));
 const NotificationsPage = lazy(() => import("./app/pages/NotificationsPage"));
 const CommunitiesPage = lazy(() => import("./app/pages/CommunitiesPage"));
@@ -179,6 +179,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/ops/organisations" element={<OpsPage><AdminSponsorships /></OpsPage>} />
           <Route path="/ops/activity"    element={<OpsPage><AdminActivity /></OpsPage>} />
           <Route path="/ops/health"      element={<OpsPage><AdminSystemHealth /></OpsPage>} />
+          <Route path="/ops/badges"      element={<OpsPage><AdminBadges /></OpsPage>} />
 
           {/* Starstreak Business — a verified organisation's own dashboard */}
           <Route path="/business" element={<BusinessRoute><BusinessHome /></BusinessRoute>} />
