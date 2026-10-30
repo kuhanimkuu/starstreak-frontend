@@ -122,7 +122,7 @@ export default function Privacy() {
               </section>
               <section id="how-share" className="mb-8">
                 <h2>6. How We Share Information</h2>
-                <p>We share data only with trusted service providers (Supabase Inc. for infrastructure, Google Firebase for push notifications, IPinfo, Inc. for estimating approximate location from IP addresses) under contractual obligations. We do not sell data to any third party.</p>
+                <p>We share data only with trusted service providers (Supabase Inc. for infrastructure, Google Firebase for push notifications and crash reports, IPinfo, Inc. for estimating approximate location from IP addresses) under contractual obligations. We do not sell data to any third party.</p>
               </section>
               <section id="retention" className="mb-8">
                 <h2>7. Data Retention</h2>
@@ -142,7 +142,7 @@ export default function Privacy() {
               </section>
               <section id="cookies" className="mb-8">
                 <h2>9. Cookies & Tracking Technologies</h2>
-                <p>Starstreak is a mobile application and does not use browser cookies. The only third-party service integrated is Firebase Cloud Messaging for push notifications.</p>
+                <p>Starstreak is a mobile application and does not use browser cookies. The only third-party services integrated are Firebase Cloud Messaging, for push notifications, and Firebase Crashlytics, which sends a crash report if the app crashes (device model, operating system and app version, and technical details of the error; never your posts, messages or other content). We do not use analytics or advertising trackers, and we do not collect advertising IDs.</p>
               </section>
               <section id="children" className="mb-8">
                 <h2>10. Children's Privacy</h2>
