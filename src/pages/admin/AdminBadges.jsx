@@ -22,6 +22,12 @@ const RULES = [
   { value: "post", label: "Shares feed posts", counted: true, unit: ["post", "posts"] },
   { value: "follow", label: "Follows people", counted: true, unit: ["person", "people"] },
   { value: "followers", label: "Gets followers", counted: true, unit: ["follower", "followers"] },
+  { value: "days_active", label: "Opens Starstreak on different days", counted: true, unit: ["day", "different days"] },
+  { value: "flash_streak", label: "Is active in Flashes days in a row", counted: true, unit: ["day in a row", "days in a row"] },
+  { value: "reactions_received", label: "Gets likes on their posts", counted: true, unit: ["like", "likes in total"] },
+  { value: "moment_top_post", label: "Writes the top post in a Streak Moment (won)", counted: false, event: true },
+  { value: "flash_whole_event", label: "Stays in a Flash start to finish (won)", counted: false, event: true },
+  { value: "prediction", label: "Calls a host's prediction right (won)", counted: false, event: true },
   { value: "", label: "Nobody automatically", counted: false },
 ];
 
@@ -49,7 +55,13 @@ function ruleSummary(b) {
     return `Active during ${k && k.value ? `a ${k.label.toLowerCase()} moment` : "any Streak Moment"} (once per moment)`;
   }
   if (!b.rule) return "Not awarded automatically";
+  if (b.rule === "moment_top_post") return "The most-liked post written during a Streak Moment (once per moment, decided 5 minutes after it closes)";
+  if (b.rule === "flash_whole_event") return "Active in the first and last quarter of a Flash's busy period, 20+ minutes (once per Flash, decided when it ends)";
+  if (b.rule === "prediction") return "Picked the right answer in a host's prediction (once per prediction)";
   const n = Number(b.threshold) || 1;
+  if (b.rule === "days_active") return `Opens Starstreak on ${n.toLocaleString()} different ${n === 1 ? "day" : "days"}`;
+  if (b.rule === "flash_streak") return `Active in Flashes ${n.toLocaleString()} ${n === 1 ? "day" : "days in a row"}`;
+  if (b.rule === "reactions_received") return `Gets ${n.toLocaleString()} ${n === 1 ? "like" : "likes"} in total on their posts`;
   const verb = r.label.split(" ")[0];
   return `${verb} ${n.toLocaleString()} ${n === 1 ? r.unit[0] : r.unit[1]}`;
 }
@@ -259,7 +271,7 @@ function BadgeRow({ b, onEdit, onChanged }) {
         <div className="text-mist text-xs">{b.description}</div>
         <div className="text-dust text-xs mt-1">
           {ruleSummary(b)}
-          {b.status === "draft" && b.rule && b.rule !== "flash_moment" && ` · ${b.would_award ?? 0} would get it on release`}
+          {b.status === "draft" && b.rule && !RULES.find((r) => r.value === b.rule)?.event && b.rule !== "flash_moment" && ` · ${b.would_award ?? 0} would get it on release`}
           {b.status !== "draft" && ` · earned ${Number(b.earned).toLocaleString()} times`}
         </div>
         {error && <div className="text-xs text-red-400 mt-1">{error}</div>}

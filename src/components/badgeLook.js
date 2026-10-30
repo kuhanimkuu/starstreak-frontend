@@ -1,6 +1,7 @@
 // The parts of a badge's look that ops pick: shared by BadgeArt and the
 // /ops/badges editor. Keep in sync with lib/features/badges/badge_art.dart.
 import {
+  MdCalendarMonth, MdGpsFixed,
   MdStar, MdBolt, MdFlashOn, MdLocalFireDepartment, MdWhereToVote, MdForum, MdGroups,
   MdAddCircle, MdEdit, MdPersonAddAlt1, MdPeopleAlt, MdFavorite, MdEmojiEvents,
   MdWorkspacePremium, MdCelebration, MdRocketLaunch, MdSportsSoccer, MdSports, MdStyle,
@@ -32,7 +33,7 @@ export const COLORS = {
 };
 
 export const ICONS = {
-  star: MdStar, bolt: MdBolt, flash: MdFlashOn, fire: MdLocalFireDepartment, pin: MdWhereToVote,
+  star: MdStar, calendar: MdCalendarMonth, target: MdGpsFixed, bolt: MdBolt, flash: MdFlashOn, fire: MdLocalFireDepartment, pin: MdWhereToVote,
   chat: MdForum, groups: MdGroups, add: MdAddCircle, edit: MdEdit, person_add: MdPersonAddAlt1,
   people: MdPeopleAlt, heart: MdFavorite, trophy: MdEmojiEvents, crown: MdWorkspacePremium,
   celebration: MdCelebration, rocket: MdRocketLaunch, goal: MdSportsSoccer, whistle: MdSports,
