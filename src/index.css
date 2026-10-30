@@ -165,3 +165,12 @@ html {
 .shadow-3xl {
   box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
 }
+
+/* Epic badge shine (BadgeArt animate): the band sweeps across every 1.5 s. */
+.badge-shine { animation: badgeShine 1.5s ease-in-out infinite; }
+@keyframes badgeShine {
+  0%, 15% { transform: translateX(-65px); opacity: 0; }
+  35% { opacity: .52; }
+  60%, 100% { transform: translateX(145px); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .badge-shine { animation: none; } }

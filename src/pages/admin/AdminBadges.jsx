@@ -2,7 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { FiAward, FiPlus, FiSave, FiSend, FiArchive, FiTrash2, FiEdit2, FiX } from "react-icons/fi";
 import { supabase } from "../../lib/supabase";
 import BadgeArt from "../../components/BadgeArt";
-import { TEMPLATES, TIERS, COLORS, ICONS, FLARELY_POSES } from "../../components/badgeLook";
+import { TEMPLATES, TIERS, COLORS, FLARELY_POSES } from "../../components/badgeLook";
+import { GLYPHS } from "../../components/badgeSvg";
+import BadgeGlyph from "../../components/BadgeGlyph";
 
 // Badges (migration 20261029000001_badge_catalogue.sql). Ops design a badge
 // from a template, name it, choose who earns it, and release it: it goes live
@@ -160,15 +162,12 @@ function Editor({ initial, onClose, onSaved }) {
                     <img src={`/mascot/flarely_${pose}.png`} alt={pose} width={32} height={32} />
                   </button>
                 ))
-                : Object.keys(ICONS).map((key) => {
-                  const Glyph = ICONS[key];
-                  return (
-                    <button key={key} type="button" onClick={() => set("icon", key)} title={key}
-                      className={`rounded-lg border p-2 ${b.icon === key ? "border-flare bg-flare/10 text-star" : "border-line text-mist hover:border-dust"}`}>
-                      <Glyph size={20} />
-                    </button>
-                  );
-                })}
+                : Object.keys(GLYPHS).map((key) => (
+                  <button key={key} type="button" onClick={() => set("icon", key)} title={key}
+                    className={`rounded-lg border p-2 ${b.icon === key ? "border-flare bg-flare/10 text-star" : "border-line text-mist hover:border-dust"}`}>
+                    <BadgeGlyph name={key} size={20} />
+                  </button>
+                ))}
             </div>
           </div>
 
@@ -220,7 +219,7 @@ function Editor({ initial, onClose, onSaved }) {
 
         <div className="flex flex-col items-center gap-4 rounded-xl border border-line bg-night-900 p-4">
           <div className="text-xs text-dust self-start">Preview</div>
-          <BadgeArt {...b} size={128} />
+          <BadgeArt {...b} size={128} animate />
           <div className="text-center">
             <div className="text-star text-sm font-semibold">{b.name || "Badge name"}</div>
             <div className="text-dust text-xs mt-1">{b.description || "How it was earned"}</div>

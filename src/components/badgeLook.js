@@ -16,9 +16,9 @@ export const TEMPLATES = [
 ];
 
 export const TIERS = [
-  { value: "common", label: "Common", hint: "Flat, one colour" },
-  { value: "rare", label: "Rare", hint: "Gradient and shine" },
-  { value: "epic", label: "Epic", hint: "Gold rim and sparkles" },
+  { value: "common", label: "Common", hint: "Clean, simple rim" },
+  { value: "rare", label: "Rare", hint: "Metallic rim, glow, sparks" },
+  { value: "epic", label: "Epic", hint: "Rays, bead ring, shine" },
 ];
 
 // No checkmark blue in any badge.
