@@ -8,7 +8,7 @@ export default function Privacy() {
   const [dbContent, setDbContent] = useState(null);
   const [dbUpdatedAt, setDbUpdatedAt] = useState(null);
   const [loading, setLoading] = useState(true);
-  const lastUpdated = 'October 12, 2026';
+  const lastUpdated = 'October 30, 2026';
 
   useEffect(() => {
     supabase
@@ -131,6 +131,14 @@ export default function Privacy() {
               <section id="rights" className="mb-8">
                 <h2>8. Your Rights & Controls</h2>
                 <p>Under the Data Protection Act, 2019 (Kenya), you have rights of access, rectification, erasure, portability, restriction, and objection. Use our <a href="/data-request" className="text-brand hover:underline">data request form</a> or <a href="/contact?category=privacy" className="text-brand hover:underline">contact our privacy team</a> to exercise these rights. We respond within 30 days.</p>
+                <h3 className="mt-5 font-semibold">Your rights wherever you live</h3>
+                <p className="mt-2">Starstreak is run from Kenya by Hephix Ltd, so Kenya&apos;s Data Protection Act, 2019 applies to every user, wherever they are. Your local law may give you more rights, and we honour them:</p>
+                <ul className="mt-2 list-disc space-y-2 pl-5">
+                  <li><strong>European Economic Area, Switzerland and the United Kingdom</strong> (GDPR, Swiss FADP, UK GDPR): the rights above, plus withdrawing consent at any time and complaining to your local data protection authority. We rely on: providing the service you signed up for; your consent (for example, push notifications); our legitimate interests in keeping Starstreak safe and working well (such as preventing abuse and spam); and legal obligations.</li>
+                  <li><strong>United States</strong>: if you live in California (CCPA/CPRA) or another state with a privacy law (such as Virginia, Colorado, Connecticut, Texas or Oregon), you can ask to know, access, correct and delete your personal information, get a copy of it, and opt out of its sale, of sharing for targeted advertising, and of profiling. We do not sell personal information, do not share it for cross-context behavioural advertising, and do not use sensitive information to infer things about you. We will not treat you differently for using these rights. You may use an authorised agent; we may need to verify who you are. Starstreak is not for children under 13 (see section 10).</li>
+                  <li><strong>Everywhere else</strong> (for example Canada, Brazil, Nigeria, South Africa, India or Australia): your local privacy law applies alongside ours. Contact us to use your rights.</li>
+                </ul>
+                <p className="mt-2">For any of these, use the <a href="/data-request" className="text-brand hover:underline">data request form</a> or <a href="/contact?category=privacy" className="text-brand hover:underline">contact our privacy team</a>. We reply within 30 days, or within the time your local law sets if that is shorter, and tell you if we need longer.</p>
               </section>
               <section id="cookies" className="mb-8">
                 <h2>9. Cookies & Tracking Technologies</h2>
@@ -146,7 +154,7 @@ export default function Privacy() {
               </section>
               <section id="transfers" className="mb-8">
                 <h2>12. International Data Transfers</h2>
-                <p>Data is processed by Supabase Inc. on EU servers and via Google Firebase in the US. All transfers are subject to appropriate safeguards under the Data Protection Act, 2019 (Kenya).</p>
+                <p>Data is processed by Supabase Inc. on EU servers and via Google Firebase in the US. All transfers are subject to appropriate safeguards under the Data Protection Act, 2019 (Kenya); for users in the EEA and UK, transfers to the US rely on the European Commission&apos;s standard contractual clauses (with the UK and Swiss addenda where they apply).</p>
               </section>
               <section id="changes" className="mb-8">
                 <h2>13. Changes to This Privacy Policy</h2>
