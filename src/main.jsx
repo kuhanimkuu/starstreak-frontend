@@ -73,6 +73,7 @@ const AdminSponsorships = lazy(() => import("./pages/admin/AdminSponsorships"));
 const AdminActivity = lazy(() => import("./pages/admin/AdminActivity"));
 const AdminSystemHealth = lazy(() => import("./pages/admin/AdminSystemHealth"));
 const AdminBadges = lazy(() => import("./pages/admin/AdminBadges"));
+const AdminCreators = lazy(() => import("./pages/admin/AdminCreators"));
 const BusinessLayout = lazy(() => import("./layouts/BusinessLayout"));
 const BusinessHome = lazy(() => import("./layouts/BusinessLayout").then((m) => ({ default: m.BusinessHome })));
 const BusinessRoute = lazy(() => import("./layouts/BusinessLayout").then((m) => ({ default: m.BusinessRoute })));
@@ -180,6 +181,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/ops/activity"    element={<OpsPage><AdminActivity /></OpsPage>} />
           <Route path="/ops/health"      element={<OpsPage><AdminSystemHealth /></OpsPage>} />
           <Route path="/ops/badges"      element={<OpsPage><AdminBadges /></OpsPage>} />
+          <Route path="/ops/creators"    element={<OpsPage><AdminCreators /></OpsPage>} />
 
           {/* Starstreak Business — a verified organisation's own dashboard */}
           <Route path="/business" element={<BusinessRoute><BusinessHome /></BusinessRoute>} />
