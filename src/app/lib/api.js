@@ -450,7 +450,7 @@ export const requestToJoinCommunity = (id, displayName) =>
 const FLASH_COLUMNS =
   "id, name, description, category, image_url, cover_image_url, member_count, members, admins, moderators, " +
   "banned_users, visibility, expires_at, flash_lifecycle_state, location_name, is_archived, parent_community_id, " +
-  "created_at, creator_id, max_member_limit, allow_anonymous";
+  "created_at, creator_id, max_member_limit, allow_anonymous, starts_at";
 
 export async function fetchLiveFlashes() {
   const { data, error } = await supabase
@@ -481,6 +481,18 @@ export async function fetchFlash(id) {
   const { data, error } = await supabase.from("flash_communities").select(FLASH_COLUMNS).eq("id", id).maybeSingle();
   if (error) throw await failure(error, "Couldn't load this Flash");
   return data;
+}
+
+/** "Notify me" for a scheduled Flash (reminders push to the phone app). */
+export async function toggleFlashReminder(flashId) {
+  const { data, error } = await supabase.rpc("toggle_flash_reminder", { p_flash: flashId });
+  if (error) throw await failure(error, "Couldn't change the reminder");
+  return data;
+}
+
+export async function flashScheduleInfo(flashId) {
+  const { data } = await supabase.rpc("flash_schedule_info", { p_flash: flashId });
+  return data || null;
 }
 
 export function flashStatus(f, myId) {

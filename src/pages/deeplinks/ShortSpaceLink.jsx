@@ -45,6 +45,7 @@ const ShortSpaceLink = ({ kind }) => {
       type="community"
       preview={space && <SpacePreview space={space} kind={kind} />}
       title={space ? `Join ${space.name} on Starstreak` : null}
+      webPath={space ? (kind === 'flash' ? `/flashes/${space.id}` : `/communities/${space.id}`) : null}
     />
   );
 };

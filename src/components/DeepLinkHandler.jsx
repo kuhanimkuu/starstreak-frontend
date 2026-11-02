@@ -23,7 +23,10 @@ function isMobileUA() {
 }
 
 // `preview` (optional): the shared post or community, drawn like the app.
-export default function DeepLinkHandler({ type, preview = null, title = null }) {
+// webPath: where this link lives in the web app (/flashes/<id>); shows
+// "Join on the web" (quick sign-up, then straight there) for people without
+// the app, e.g. a friend's link opened on a laptop or before installing.
+export default function DeepLinkHandler({ type, preview = null, title = null, webPath = null }) {
   const location = useLocation();
   const appUrl = `${APP_SCHEME}${location.pathname}`;
   const [mobile] = useState(isMobileUA);
@@ -76,6 +79,23 @@ export default function DeepLinkHandler({ type, preview = null, title = null }) 
               Open in the app
             </a>
           )
+        )}
+
+        {webPath && (
+          <div className="mt-6 flex w-full flex-col items-center gap-2">
+            <Link
+              to={`/signup?next=${encodeURIComponent(webPath)}`}
+              className={mobile ? "btn-ghost w-full max-w-xs justify-center" : "btn-flare w-full max-w-xs justify-center"}
+            >
+              Join on the web
+            </Link>
+            <p className="text-sm text-mist">
+              Quick sign-up with Google or your email. Already on Starstreak?{" "}
+              <Link to={`/login?next=${encodeURIComponent(webPath)}`} className="font-semibold text-accent hover:text-gold">
+                Sign in
+              </Link>
+            </p>
+          </div>
         )}
 
         <div className="card-night mt-12 w-full p-6">

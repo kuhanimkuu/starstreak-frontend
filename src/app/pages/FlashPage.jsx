@@ -7,7 +7,7 @@ import Feed, { Spinner } from "../components/Feed";
 import { CommunityIcon } from "./CommunitiesPage";
 import { useCountdown } from "./FlashesPage";
 import { BackHeader, UUID } from "./PostPage";
-import { fetchFlash, flashStatus, joinFlash, leaveFlash } from "../lib/api";
+import { fetchFlash, flashScheduleInfo, flashStatus, joinFlash, leaveFlash, toggleFlashReminder } from "../lib/api";
 import { flashAdapter } from "../lib/adapters";
 import { safeUrl } from "../lib/media";
 import { compact } from "../lib/format";
@@ -69,6 +69,7 @@ export default function FlashPage() {
   }
 
   const cover = safeUrl(f.cover_image_url);
+  const upcoming = f.starts_at && new Date(f.starts_at) > new Date();
   const locked = f.visibility && !["public", "limited"].includes(f.visibility);
 
   let action = null;
@@ -96,6 +97,7 @@ export default function FlashPage() {
           {f.location_name && <span className="flex items-center gap-1.5"><FiMapPin /> {f.location_name}</span>}
         </p>
         {f.description && <p className="mt-3 whitespace-pre-wrap text-[15px] text-star">{f.description}</p>}
+        {upcoming && <UpcomingBanner flashId={f.id} startsAt={f.starts_at} />}
       </div>
 
       <div className="mt-4 border-t border-line">
@@ -108,5 +110,43 @@ export default function FlashPage() {
               empty={<p className="px-8 py-16 text-center text-mist">Nothing posted yet.</p>} />
       </div>
     </AppShell>
+  );
+}
+
+/** Scheduled Flash before its start: when, and "Notify me" (the reminder
+ *  is a push to the Starstreak app, 30 minutes before and at the start). */
+function UpcomingBanner({ flashId, startsAt }) {
+  const { notify } = useAppSession();
+  const [info, setInfo] = useState(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    flashScheduleInfo(flashId).then(setInfo);
+  }, [flashId]);
+  const start = new Date(startsAt);
+  const when = start.toLocaleString(undefined, { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  async function toggle() {
+    setBusy(true);
+    try {
+      setInfo(await toggleFlashReminder(flashId));
+    } catch (e) {
+      notify(e.message, "error");
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="mt-4 rounded-2xl border border-flare/60 bg-night-800 p-4">
+      <p className="text-lg font-extrabold text-star">Starts {when}</p>
+      <p className="mt-1 text-sm text-mist">
+        Join now, post and make predictions. Moments unlock at the start.
+        {info?.reminder_count ? ` ${info.reminder_count} waiting.` : ""}
+      </p>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <button onClick={toggle} disabled={busy} className={info?.reminded ? "btn-ghost !py-2 text-sm" : "btn-flare !py-2 text-sm"}>
+          {info?.reminded ? "You'll be notified" : "Notify me"}
+        </button>
+        <span className="text-xs text-dust">Reminders arrive in the Starstreak app.</span>
+      </div>
+    </div>
   );
 }
