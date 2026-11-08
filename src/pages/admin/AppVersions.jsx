@@ -89,7 +89,7 @@ export default function AppVersions() {
         </label>
         <label className="space-y-1 text-xs text-mist sm:col-span-2">
           <span>Update link (Play Store or tester download), https only</span>
-          <input id="store-url" type="url" value={form.store_url} onChange={set("store_url")} placeholder="https://play.google.com/store/apps/details?id=com.nexora.nexora_app" className={field} />
+          <input id="store-url" type="url" value={form.store_url} onChange={set("store_url")} placeholder="https://play.google.com/store/apps/details?id=org.starstreak.app" className={field} />
         </label>
         <label className="space-y-1 text-xs text-mist sm:col-span-2">
           <span>Message on the update screen (optional)</span>
