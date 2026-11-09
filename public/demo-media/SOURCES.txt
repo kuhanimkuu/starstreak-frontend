@@ -12,7 +12,6 @@ c-nba-after-dark: Basketball game Oakland Arena, California | cc0 | https://www.
 c-premier-league-fans: Longxing Football Stadium 2025-06-10 (2) | cc0 | https://commons.wikimedia.org/w/index.php?curid=167551675
 f-abu-dhabi-gp-watch-along: Gokart Racing | cc0 | https://stocksnap.io/photo/gokart-racing-PA4BQIKJEU
 f-afro-nation-main-stage: crowd concert | cc0 | https://www.rawpixel.com/image/3295558/free-photo-image-concert-cc0-club
-f-arsenal-vs-chelsea-live: File:Mitsuzawa Football Stadium 20121021.JPG | cc0 | https://commons.wikimedia.org/w/index.php?curid=22433338
 f-burna-boy-lagos-live: Concert Show | cc0 | https://stocksnap.io/photo/concert-show-4LZRZTD1MC
 f-champions-league-draw: Soccer ball grass field | cc0 | https://www.rawpixel.com/image/5911893/image-public-domain-free-grass
 f-coachella-weekend-1-livestream: Crowd People | cc0 | https://stocksnap.io/photo/crowd-people-IUJP9OI22I
@@ -25,3 +24,4 @@ f-new-year-s-eve-countdown: Fireworks Lights | cc0 | https://stocksnap.io/photo/
 f-real-madrid-vs-barcelona-el-cl-sico: Free closeup soccer ball grass | cc0 | https://www.rawpixel.com/image/5916861/image-public-domain-green-free
 f-storm-alert-live-updates: stop sign stands flooded street | cc0 | https://www.rawpixel.com/image/8723819/photo-image-border-public-domain
 f-taylor-swift-eras-tour-night-2: Crowd People | cc0 | https://stocksnap.io/photo/crowd-people-IUJP9OI22I
+f-arsenal-chelsea-v2: Still Items | cc0 | https://stocksnap.io/photo/still-items-KTQZYM7YXM
