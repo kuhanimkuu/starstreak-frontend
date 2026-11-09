@@ -17,6 +17,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Contact from "./pages/Contact";
 import Safety from "./pages/Safety";
+import ChildSafety from "./pages/ChildSafety";
 import Guidelines from "./pages/Guidelines";
 import Accessibility from "./pages/Accessibility";
 import PressKit from "./pages/PressKit";
@@ -223,6 +224,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/status"       element={<MainLayout><Status /></MainLayout>} />
           <Route path="/roadmap"      element={<MainLayout><Roadmap /></MainLayout>} />
           <Route path="/safety"       element={<MainLayout><Safety /></MainLayout>} />
+          <Route path="/child-safety" element={<MainLayout><ChildSafety /></MainLayout>} />
           <Route path="/guidelines"   element={<MainLayout><Guidelines /></MainLayout>} />
           <Route path="/download"     element={<MainLayout><Download /></MainLayout>} />
 

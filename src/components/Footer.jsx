@@ -28,6 +28,7 @@ const COLUMNS = [
       ["Support", "/support"],
       ["Community guidelines", "/guidelines"],
       ["Safety centre", "/safety"],
+      ["Child safety", "/child-safety"],
       ["Accessibility", "/accessibility"],
       ["System status", "/status"],
     ],
