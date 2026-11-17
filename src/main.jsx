@@ -68,6 +68,8 @@ const AdminSafety = lazy(() => import("./pages/admin/AdminSafety"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminContent = lazy(() => import("./pages/admin/AdminContent"));
 const AdminMessages = lazy(() => import("./pages/admin/AdminMessages"));
+// TEMPORARY (Play closed test): remove at production launch.
+const AdminTesting = lazy(() => import("./pages/admin/AdminTesting"));
 const AdminPublish = lazy(() => import("./pages/admin/AdminPublish"));
 const AdminOfficialCommunity = lazy(() => import("./pages/admin/AdminOfficialCommunity"));
 const AdminSponsorships = lazy(() => import("./pages/admin/AdminSponsorships"));
@@ -180,6 +182,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/ops/starstreak-community" element={<OpsPage><AdminOfficialCommunity /></OpsPage>} />
           <Route path="/ops/organisations" element={<OpsPage><AdminSponsorships /></OpsPage>} />
           <Route path="/ops/activity"    element={<OpsPage><AdminActivity /></OpsPage>} />
+          {/* TEMPORARY (Play closed test): remove at production launch. */}
+          <Route path="/ops/testing"     element={<OpsPage><AdminTesting /></OpsPage>} />
           <Route path="/ops/health"      element={<OpsPage><AdminSystemHealth /></OpsPage>} />
           <Route path="/ops/badges"      element={<OpsPage><AdminBadges /></OpsPage>} />
           <Route path="/ops/creators"    element={<OpsPage><AdminCreators /></OpsPage>} />

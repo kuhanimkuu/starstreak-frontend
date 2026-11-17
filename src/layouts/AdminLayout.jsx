@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import {
   FiHome, FiUsers, FiLayers, FiFlag, FiTrendingUp,
-  FiShield, FiSettings, FiLogOut, FiMenu, FiX, FiGlobe, FiMail, FiVolume2, FiStar, FiBriefcase, FiActivity, FiHeart, FiAward, FiImage,
+  FiShield, FiSettings, FiLogOut, FiMenu, FiX, FiGlobe, FiMail, FiVolume2, FiStar, FiBriefcase, FiActivity, FiHeart, FiAward, FiImage, FiClock,
 } from "react-icons/fi";
 import FlarelyMark from "../components/FlarelyMark";
 
@@ -19,6 +19,8 @@ const NAV = [
   { label: "Messages", path: "/ops/messages", icon: FiMail },
   { label: "Reports", path: "/ops/reports", icon: FiFlag },
   { label: "Analytics", path: "/ops/analytics", icon: FiTrendingUp },
+  // TEMPORARY (Play closed test): remove at production launch.
+  { label: "Testing activity", path: "/ops/testing", icon: FiClock },
   { label: "Safety", path: "/ops/safety", icon: FiShield },
   { label: "Activity", path: "/ops/activity", icon: FiActivity },
   { label: "System health", path: "/ops/health", icon: FiHeart },
