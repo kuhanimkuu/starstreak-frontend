@@ -46,7 +46,7 @@ function Published({ items, onRemove, removing }) {
               <span className="flex items-center gap-1"><FiHeart /> {it.likes}</span>
               <span className="flex items-center gap-1"><FiMessageCircle /> {it.comments}</span>
             </div>
-            <p className="mt-1.5 line-clamp-2 whitespace-pre-line text-sm text-star">{it.content || "(media only)"}</p>
+            <p className="mt-1.5 whitespace-pre-line break-words text-sm text-star">{it.content || "(media only)"}</p>
           </div>
           <div className="flex shrink-0 items-center gap-1">
             {it.link && (
